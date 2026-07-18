@@ -1,0 +1,30 @@
+name: Image to Video
+on:
+  repository_dispatch:
+    types: [render_video]
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download image
+        run: |
+          mkdir -p videos
+          curl -L "${{ github.event.client_payload.image_url }}" -o input.png
+      - name: Convert to vertical silent video
+        run: |
+          ffmpeg -y -loop 1 -i input.png -t 5 \
+          -vf "scale=1080:1080,pad=1080:1920:0:420:color=0xF3ECDE" \
+          -c:v libx264 -pix_fmt yuv420p -r 30 -an \
+          videos/row-${{ github.event.client_payload.row_id }}.mp4
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add videos/row-${{ github.event.client_payload.row_id }}.mp4
+          git commit -m "Reel video for row ${{ github.event.client_payload.row_id }}"
+          git push
