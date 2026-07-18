@@ -22,7 +22,7 @@ jobs:
 
       - name: Convert to vertical silent video
         run: |
-          ffmpeg -y -loop 1 -i input.png -t 5 \
+          ffmpeg -y -loop 1 -i input.png -t 30 \
           -vf "scale=1080:1080,pad=1080:1920:0:420:color=0xF3ECDE" \
           -c:v libx264 -pix_fmt yuv420p -r 30 -an \
           videos/row-${{ github.event.client_payload.row_id }}.mp4
