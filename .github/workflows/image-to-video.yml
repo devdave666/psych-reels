@@ -20,11 +20,16 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Convert to vertical silent video
+      - name: Pick track and convert to vertical video with audio
         run: |
-          ffmpeg -y -loop 1 -i input.png -t 30 \
-          -vf "scale=1080:1080,pad=1080:1920:0:420:color=0xF3ECDE" \
-          -c:v libx264 -pix_fmt yuv420p -r 30 -an \
+          ROW_ID="${{ github.event.client_payload.row_id }}"
+          TRACK_NUM=$(( (ROW_ID % 5) + 1 ))
+          TRACK="track${TRACK_NUM}.mp3.mp3"
+          echo "Using $TRACK"
+          ffmpeg -y -loop 1 -i input.png -stream_loop -1 -i "$TRACK" -t 30 \
+          -vf "scale=972:972,pad=1080:1920:54:474:color=0xF3ECDE" \
+          -c:v libx264 -pix_fmt yuv420p -r 30 \
+          -c:a aac -b:a 128k -shortest \
           videos/row-${{ github.event.client_payload.row_id }}.mp4
 
       - name: Commit and push
