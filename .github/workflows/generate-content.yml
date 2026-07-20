@@ -1,0 +1,50 @@
+name: Generate Content
+on:
+  repository_dispatch:
+    types: [generate_content]
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip3 install --break-system-packages Pillow
+
+      - name: Composite card image
+        run: |
+          python3 composite_card.py "${{ github.event.client_payload.quote_text }}" "${{ github.event.client_payload.attribution }}" "${{ github.event.client_payload.source }}" "${{ github.event.client_payload.row_id }}"
+
+      - name: Save Pinterest image
+        run: |
+          mkdir -p pins
+          cp card.png pins/row-${{ github.event.client_payload.row_id }}.png
+
+      - name: Render video with audio
+        run: |
+          ROW_ID="${{ github.event.client_payload.row_id }}"
+          TRACK_NUM=$(( (ROW_ID % 5) + 1 ))
+          TRACK="track${TRACK_NUM}.mp3.mp3"
+          mkdir -p videos
+          ffmpeg -y -loop 1 -i card.png -stream_loop -1 -i "$TRACK" -t 30 \
+          -c:v libx264 -pix_fmt yuv420p -r 30 \
+          -c:a aac -b:a 128k -shortest \
+          videos/row-${{ github.event.client_payload.row_id }}.mp4
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pins/row-${{ github.event.client_payload.row_id }}.png videos/row-${{ github.event.client_payload.row_id }}.mp4
+          git commit -m "Content for row ${{ github.event.client_payload.row_id }}"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
