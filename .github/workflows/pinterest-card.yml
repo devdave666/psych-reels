@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install wkhtmltoimage
-        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf
+        run: sudo apt-get update && sudo apt-get install -y wkhtmltopdf imagemagick
 
       - name: Build card HTML
         run: |
@@ -22,7 +22,8 @@ jobs:
       - name: Render image
         run: |
           mkdir -p pins
-          wkhtmltoimage --width 1000 --height 1500 card.html pins/row-${{ github.event.client_payload.row_id }}.png
+          wkhtmltoimage --width 1000 --height 1500 card.html raw.png
+          convert raw.png -background "#F3ECDE" -flatten -alpha remove -alpha off pins/row-${{ github.event.client_payload.row_id }}.png
 
       - name: Commit and push
         run: |
