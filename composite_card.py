@@ -20,6 +20,14 @@ IMAGE_MAP = {
     "blaise pascal": "pascal",
     "michel de montaigne": "montaigne",
     "plato": "plato",
+    "aristotle": "aristotle",
+    "cicero": "cicero",
+    "francis bacon": "francis_bacon",
+    "thomas hobbes": "thomas_hobbes",
+    "georg wilhelm friedrich hegel": "hegel",
+    "ralph waldo emerson": "emerson",
+    "henry david thoreau": "thoreau",
+    "benjamin franklin": "benjamin_franklin",
 }
 
 def get_background(attribution, row_id):
