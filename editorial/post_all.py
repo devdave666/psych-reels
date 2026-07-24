@@ -84,14 +84,16 @@ publish = ig_request(f"{IG_USER_ID}/media_publish", {
 })
 print(f"Instagram published: {publish['id']}")
 
+# Fetch the real permalink so Pinterest can link directly to this exact post
+permalink_data = requests.get(
+    f"https://graph.instagram.com/v23.0/{publish['id']}",
+    params={"fields": "permalink", "access_token": IG_TOKEN}
+).json()
+ig_permalink = permalink_data.get("permalink", "https://www.instagram.com/the_higher_being/")
+print(f"Instagram permalink: {ig_permalink}")
+
 # --- Buffer: X, Threads, Pinterest ---
-def buffer_post(channel_id, text, image_url=None, board_id=None):
-    query_input = {
-        "text": text,
-        "channelId": channel_id,
-        "schedulingType": "automatic",
-        "mode": "shareNow",
-    }
+def buffer_post(channel_id, text, image_url=None, board_id=None, dest_url=None):
     gql_parts = [
         f'text: "{text}"'.replace("\n", "\\n"),
         f'channelId: "{channel_id}"',
@@ -101,7 +103,11 @@ def buffer_post(channel_id, text, image_url=None, board_id=None):
     if image_url:
         gql_parts.append(f'assets: {{ image: {{ url: "{image_url}" }} }}')
     if board_id:
-        gql_parts.append(f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}" }} }}')
+        meta = f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}"'
+        if dest_url:
+            meta += f', url: "{dest_url}"'
+        meta += ' } }'
+        gql_parts.append(meta)
     query = (
         "mutation CreatePost { createPost(input: { " + ", ".join(gql_parts) +
         " }) { ... on PostActionSuccess { post { id } } ... on MutationError { message } } }"
@@ -126,7 +132,15 @@ print(f"X posted: {x_id}")
 threads_id = buffer_post(THREADS_CHANNEL_ID, caption_escaped)
 print(f"Threads posted: {threads_id}")
 
-pin_id = buffer_post(PINTEREST_CHANNEL_ID, caption_escaped, image_url=slide_urls[0], board_id=PINTEREST_BOARD_ID)
+teaser_url = f"{BASE_URL}/row-{idx}-pinterest-teaser.png"
+pinterest_caption = f"{caption}\n\nFull story on Instagram: @the_higher_being"
+pin_id = buffer_post(
+    PINTEREST_CHANNEL_ID,
+    pinterest_caption.replace('"', '\\"'),
+    image_url=teaser_url,
+    board_id=PINTEREST_BOARD_ID,
+    dest_url=ig_permalink
+)
 print(f"Pinterest posted: {pin_id}")
 
 print("ALL_PLATFORMS_SUCCESS")

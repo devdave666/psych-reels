@@ -68,3 +68,14 @@ if cta:
 with open('_total_slides.txt', 'w') as f:
     f.write(str(total_pages))
 print(f"TOTAL_SLIDES={total_pages}")
+
+# Render the Pinterest-specific teaser (deliberately incomplete, drives click-through to Instagram)
+try:
+    with open('_selected_pinterest_hook.txt') as f:
+        pinterest_hook = f.read().strip()
+except FileNotFoundError:
+    pinterest_hook = ''
+
+if pinterest_hook:
+    import render_pinterest_teaser as teaser_mod
+    teaser_mod.render_teaser(title, label, pinterest_hook, f'output/row-{idx}-pinterest-teaser.png')
