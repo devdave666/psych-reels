@@ -1,0 +1,68 @@
+name: Editorial Content Post
+on:
+  schedule:
+    - cron: '0 13 * * 1,4'  # Monday and Thursday, 13:00 UTC (9am EDT)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip3 install --break-system-packages Pillow requests
+
+      - name: Select next content
+        working-directory: editorial
+        run: python3 select_next.py
+
+      - name: Render slides
+        working-directory: editorial
+        run: python3 render_from_selection.py
+
+      - name: Commit rendered images
+        working-directory: editorial
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          git commit -m "Editorial content render: $(cat _selected_title.txt)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
+
+      - name: Wait for GitHub Pages deployment
+        run: sleep 90
+
+      - name: Post to all platforms
+        working-directory: editorial
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_X_CHANNEL_ID: ${{ secrets.BUFFER_X_CHANNEL_ID }}
+          BUFFER_THREADS_CHANNEL_ID: ${{ secrets.BUFFER_THREADS_CHANNEL_ID }}
+          BUFFER_PINTEREST_CHANNEL_ID: ${{ secrets.BUFFER_PINTEREST_CHANNEL_ID }}
+          BUFFER_PINTEREST_BOARD_ID: ${{ secrets.BUFFER_PINTEREST_BOARD_ID }}
+        run: python3 post_all.py
+
+      - name: Update state and content tracking
+        working-directory: editorial
+        run: python3 update_state.py
+
+      - name: Commit state update
+        working-directory: editorial
+        run: |
+          git add content.json state.json
+          git commit -m "Mark editorial content used: $(cat _selected_title.txt)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done

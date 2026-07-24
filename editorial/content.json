@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "title": "Marcus Aurelius vs. the Amygdala",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "\"You have power over your mind, not outside events.\" Marcus Aurelius wrote that line nearly 1,900 years ago, in a war camp, as a private note to himself. He had no way to prove it.\n\nModern neuroscience has. The technique is called cognitive reappraisal: consciously reframing how you interpret a stressful event before it triggers a full emotional response. Brain imaging shows it measurably dampens amygdala activity within seconds, before the stress cascade even builds.\n\nAurelius wasn't guessing. He'd noticed something real about how minds work, centuries before anyone had the tools to explain why.",
+    "hashtags": "#philosophy #psychology #stoicism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 2,
+    "title": "Epictetus and the Locus of Control",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "In the first century, Epictetus, a former slave turned philosopher, built his entire system on one distinction: some things are up to us, and some things are not. Our judgments, desires, and reactions are ours to control. Everything else, health, reputation, other people's opinions, is not. He argued that suffering comes from confusing the two.\n\nNearly two thousand years later, psychologist Julian Rotter formalized almost the identical idea in 1966, calling it locus of control. People with a strong internal locus of control, who believe their own actions drive outcomes rather than external forces, consistently show better stress management, higher achievement, and lower rates of anxiety and depression across dozens of studies.\n\nThe overlap is not superficial. Rotter's internal-external scale essentially measures how well a person has internalized Epictetus's dichotomy, whether they have learned to separate what is theirs to control from what is not.\n\nWhat's remarkable is that Epictetus arrived at a testable psychological principle through pure introspection, centuries before anyone had a method to test it. He wasn't just being wise. He was, in a real sense, doing psychology without the tools psychology would later invent.",
+    "hashtags": "#philosophy #psychology #stoicism",
+    "used": true,
+    "date_used": "2026-07-23"
+  },
+  {
+    "id": 3,
+    "title": "Seneca's Trick for Anxiety",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Seneca had a practice he called premeditatio malorum, the premeditation of evils. Before anything important, he would deliberately imagine the worst outcome in detail: the loss, the failure, the humiliation. Not to despair over it, but to rehearse it, so it lost its power to ambush him later.\n\nThis is close to what modern psychologists call stress inoculation training. Patients are guided to vividly imagine a feared scenario in a safe setting, which measurably reduces the physiological fear response when the real version happens. The nervous system, having rehearsed the event once, treats a second exposure as familiar rather than threatening.\n\nSeneca framed it as philosophy. Clinicians now use it as a formal treatment for anxiety and phobias, with controlled trials behind it. He had the mechanism right two thousand years before anyone had the word for it.",
+    "hashtags": "#philosophy #psychology #stoicism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 4,
+    "title": "Aristotle's Theory of Habit, Confirmed in a Lab",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Aristotle argued that virtue is not a feeling but a habit: we become just by doing just acts, temperate by doing temperate acts. Character, in his framing, is built through repetition, not insight. You don't think your way into a new character. You act your way into one.\n\nModern neuroscience backs this almost exactly. Repeated behavior physically strengthens specific neural pathways through a process called long-term potentiation, literally making the behavior easier and more automatic each time it's repeated. This is the same mechanism behind habit formation research: actions repeated in a consistent context become progressively less effortful and more automatic, requiring less conscious willpower over time.\n\nAristotle didn't have access to neurons. He built his ethics on careful observation of how people actually change, and it happens to match what brain imaging now confirms.",
+    "hashtags": "#philosophy #psychology #aristotle",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 5,
+    "title": "Nietzsche's Amor Fati and Post-Traumatic Growth",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Nietzsche's idea of amor fati, love of fate, asked something radical: not just to endure hardship, but to want it to have happened, to affirm your suffering as part of what made you who you are. He wasn't talking about denial. He meant something closer to full acceptance, retroactively, of even the worst parts of a life.\n\nDecades of research on post-traumatic growth describe something strikingly similar. A significant number of people who go through serious adversity report not just recovering, but developing a deeper appreciation for life, stronger relationships, and a clearer sense of meaning, specifically because of what they went through, not despite it.\n\nThe research is careful to note this isn't automatic or guaranteed, and it doesn't make the suffering good. But the pattern Nietzsche described in the language of philosophy shows up reliably in the data: some people don't just survive hardship, they integrate it into a stronger sense of self.",
+    "hashtags": "#philosophy #psychology #nietzsche",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 6,
+    "title": "Socrates' Oldest Advice, Tested in 2018",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "\"Know thyself\" was inscribed at the Temple of Delphi, and Socrates made it the center of his entire philosophy. He spent his life questioning people, including himself, on the theory that an unexamined life wasn't worth living, that clarity about your own beliefs and motives was the foundation of a good life.\n\nA 2018 study on expressive writing and self-reflection found that structured, regular self-examination, writing about your own thoughts, decisions, and emotional reactions, produced measurable drops in stress and measurable gains in clarity and decision-making confidence, especially when done consistently over weeks rather than once.\n\nSocrates never wrote anything down himself. But the practice he pushed on everyone he met, turning attention inward and interrogating your own assumptions, is close to word for word what modern self-reflection research recommends.",
+    "hashtags": "#philosophy #psychology #socrates",
+    "used": false,
+    "date_used": ""
+  }
+]
