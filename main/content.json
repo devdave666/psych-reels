@@ -1,0 +1,1469 @@
+[
+  {
+    "id": "1",
+    "type": "quote",
+    "text": "You have power over your mind, not outside events. Realize this, and you will find strength.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": true,
+    "date_used": "2026-07-17"
+  },
+  {
+    "id": "2",
+    "type": "quote",
+    "text": "Men are disturbed not by things, but by the views which they take of things.",
+    "attribution": "Epictetus",
+    "source": "Enchiridion",
+    "used": true,
+    "date_used": "2026-07-17"
+  },
+  {
+    "id": "4",
+    "type": "quote",
+    "text": "The unexamined life is not worth living.",
+    "attribution": "Plato",
+    "source": "Apology",
+    "used": true,
+    "date_used": "2026-07-19"
+  },
+  {
+    "id": "5",
+    "type": "quote",
+    "text": "I think, therefore I am.",
+    "attribution": "Rene Descartes",
+    "source": "Discourse on the Method",
+    "used": true,
+    "date_used": "2026-07-19"
+  },
+  {
+    "id": "6",
+    "type": "quote",
+    "text": "That which does not kill us makes us stronger.",
+    "attribution": "Friedrich Nietzsche",
+    "source": "Twilight of the Idols",
+    "used": true,
+    "date_used": "2026-07-19"
+  },
+  {
+    "id": "7",
+    "type": "quote",
+    "text": "Act only according to that maxim whereby you can, at the same time, will that it should become a universal law.",
+    "attribution": "Immanuel Kant",
+    "source": "Critique of Practical Reason",
+    "used": true,
+    "date_used": "2026-07-20"
+  },
+  {
+    "id": "8",
+    "type": "quote",
+    "text": "All things excellent are as difficult as they are rare.",
+    "attribution": "Baruch Spinoza",
+    "source": "Ethics",
+    "used": true,
+    "date_used": "2026-07-20"
+  },
+  {
+    "id": "9",
+    "type": "fact",
+    "text": "Repeating information right before you forget it strengthens memory far more than repeating it right after you learn it. This is called the spacing effect.",
+    "attribution": "Psychology",
+    "source": "Memory research",
+    "used": true,
+    "date_used": "2026-07-20"
+  },
+  {
+    "id": "10",
+    "type": "fact",
+    "text": "The brain tends to remember unfinished tasks better than completed ones, a pattern known as the Zeigarnik effect.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": true,
+    "date_used": "2026-07-21"
+  },
+  {
+    "id": "3",
+    "type": "quote",
+    "text": "We suffer more often in imagination than in reality.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": true,
+    "date_used": "2026-07-23"
+  },
+  {
+    "id": "163",
+    "type": "quote",
+    "text": "Never let the future disturb you. You will meet it, if you have to, with the same weapons of reason which today arm you against the present.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "12",
+    "type": "fact",
+    "text": "Repeated exposure to something tends to increase our liking for it, even without conscious awareness. This is the mere-exposure effect.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "19",
+    "type": "quote",
+    "text": "Waste no more time arguing about what a good man should be. Be one.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "13",
+    "type": "fact",
+    "text": "People tend to value something more highly once they have had a hand in building it, a bias known as the IKEA effect.",
+    "attribution": "Psychology",
+    "source": "Behavioral economics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "14",
+    "type": "fact",
+    "text": "Negative experiences tend to affect us more strongly than positive ones of equal intensity, an asymmetry called negativity bias.",
+    "attribution": "Psychology",
+    "source": "Emotion research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "20",
+    "type": "quote",
+    "text": "The best revenge is to be unlike him who performed the injury.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "15",
+    "type": "fact",
+    "text": "Most newly learned information is lost within the first day unless it is reviewed, according to Ebbinghaus's forgetting curve.",
+    "attribution": "Psychology",
+    "source": "Memory research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "21",
+    "type": "quote",
+    "text": "If it is not right, do not do it; if it is not true, do not say it.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "16",
+    "type": "fact",
+    "text": "Holding two contradictory beliefs at once creates mental discomfort that people are motivated to resolve, a state called cognitive dissonance.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "17",
+    "type": "fact",
+    "text": "People tend to overestimate how much others notice their mistakes and appearance, a bias known as the spotlight effect.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "22",
+    "type": "quote",
+    "text": "Very little is needed to make a happy life; it is all within yourself, in your way of thinking.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "18",
+    "type": "fact",
+    "text": "A single positive or negative trait can color our entire impression of a person, a pattern known as the halo effect.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "23",
+    "type": "quote",
+    "text": "Confine yourself to the present.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "69",
+    "type": "fact",
+    "text": "When we're anxious about a decision, adding one more piece of information often makes us feel more confident without actually making the decision more accurate.",
+    "attribution": "Psychology",
+    "source": "Judgment and decision-making",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "70",
+    "type": "fact",
+    "text": "People tend to conform to group opinions even when they privately believe the group is wrong, simply to avoid social friction.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "24",
+    "type": "quote",
+    "text": "Loss is nothing else but change, and change is Nature's delight.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "71",
+    "type": "fact",
+    "text": "Being told to consciously suppress a thought often makes that thought resurface more insistently later.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "25",
+    "type": "quote",
+    "text": "How much more grievous are the consequences of anger than the causes of it.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "72",
+    "type": "fact",
+    "text": "We tend to remember the first and last items on a list better than the ones in the middle.",
+    "attribution": "Psychology",
+    "source": "Memory research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "73",
+    "type": "fact",
+    "text": "Vividly imagining a future event in detail can make us more confident it will happen, even without new evidence.",
+    "attribution": "Psychology",
+    "source": "Judgment and decision-making",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "26",
+    "type": "quote",
+    "text": "Everything we hear is an opinion, not a fact. Everything we see is a perspective, not the truth.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "74",
+    "type": "fact",
+    "text": "People who write about stressful experiences for a few minutes a day tend to show measurable improvements in physical health over time.",
+    "attribution": "Psychology",
+    "source": "Health psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "27",
+    "type": "quote",
+    "text": "The universe is change; our life is what our thoughts make it.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "75",
+    "type": "fact",
+    "text": "The way a question is phrased can change how people answer it, even when the underlying facts are identical.",
+    "attribution": "Psychology",
+    "source": "Judgment and decision-making",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "76",
+    "type": "fact",
+    "text": "Recalling a memory can subtly change it each time, a process called reconsolidation.",
+    "attribution": "Psychology",
+    "source": "Memory research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "28",
+    "type": "quote",
+    "text": "First say to yourself what you would be; and then do what you have to do.",
+    "attribution": "Epictetus",
+    "source": "Discourses",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "77",
+    "type": "fact",
+    "text": "People consistently rate their own driving ability as above average, a statistical impossibility for the group as a whole.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "29",
+    "type": "quote",
+    "text": "No man is free who is not master of himself.",
+    "attribution": "Epictetus",
+    "source": "Discourses",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "78",
+    "type": "fact",
+    "text": "Physical warmth can subtly increase feelings of interpersonal warmth toward other people, and vice versa.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "79",
+    "type": "fact",
+    "text": "People tend to attribute their own failures to circumstances but attribute others' failures to character.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "30",
+    "type": "quote",
+    "text": "Only the educated are free.",
+    "attribution": "Epictetus",
+    "source": "Discourses",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "80",
+    "type": "fact",
+    "text": "Choices become harder to make, not easier, once we're offered too many options.",
+    "attribution": "Psychology",
+    "source": "Behavioral economics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "31",
+    "type": "quote",
+    "text": "Wealth consists not in having great possessions, but in having few wants.",
+    "attribution": "Epictetus",
+    "source": "Discourses",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "81",
+    "type": "fact",
+    "text": "Doing someone a small favor makes them more likely to return the favor later, sometimes even years afterward.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "82",
+    "type": "fact",
+    "text": "People tend to value what they already own more than they would pay to acquire the same item new.",
+    "attribution": "Psychology",
+    "source": "Behavioral economics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "32",
+    "type": "quote",
+    "text": "He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has.",
+    "attribution": "Epictetus",
+    "source": "Enchiridion",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "83",
+    "type": "fact",
+    "text": "Making a public commitment to a goal makes people more likely to follow through with it than making the same commitment privately.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "33",
+    "type": "quote",
+    "text": "It is not that we have a short time to live, but that we waste a lot of it.",
+    "attribution": "Seneca",
+    "source": "On the Shortness of Life",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "84",
+    "type": "fact",
+    "text": "We tend to see patterns and faces in random or ambiguous shapes, a tendency called pareidolia.",
+    "attribution": "Psychology",
+    "source": "Perception",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "85",
+    "type": "fact",
+    "text": "Groups often reach riskier decisions collectively than any individual member would reach alone.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "34",
+    "type": "quote",
+    "text": "Difficulties strengthen the mind, as labor does the body.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "86",
+    "type": "fact",
+    "text": "Physical pain and social rejection activate overlapping regions of the brain.",
+    "attribution": "Psychology",
+    "source": "Neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "35",
+    "type": "quote",
+    "text": "As long as you live, keep learning how to live.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "87",
+    "type": "fact",
+    "text": "The simple act of writing down a goal measurably increases the odds of achieving it.",
+    "attribution": "Psychology",
+    "source": "Goal-setting research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "88",
+    "type": "fact",
+    "text": "Sleep deprivation impairs the brain's ability to regulate emotional reactions before it impairs conscious reasoning.",
+    "attribution": "Psychology",
+    "source": "Sleep research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "36",
+    "type": "quote",
+    "text": "Every new beginning comes from some other beginning's end.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "89",
+    "type": "fact",
+    "text": "When people believe a pill is expensive, they often report it working better than when told it's cheap, even if it's the same pill.",
+    "attribution": "Psychology",
+    "source": "Placebo research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "90",
+    "type": "fact",
+    "text": "Multitasking doesn't make us faster; it makes each task take longer because of the cost of switching attention.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "37",
+    "type": "quote",
+    "text": "He who is brave is free.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "91",
+    "type": "fact",
+    "text": "We consistently underestimate how long a task will take, even when we've made the same mistake on a similar task before.",
+    "attribution": "Psychology",
+    "source": "Judgment and decision-making",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "38",
+    "type": "quote",
+    "text": "Sometimes even to live is an act of courage.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "92",
+    "type": "fact",
+    "text": "Information learned in a particular mood is often recalled more easily later while in that same mood.",
+    "attribution": "Psychology",
+    "source": "Memory research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "93",
+    "type": "fact",
+    "text": "Small, gradual changes to a routine are more likely to become lasting habits than large, sudden overhauls.",
+    "attribution": "Psychology",
+    "source": "Habit formation research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "39",
+    "type": "quote",
+    "text": "Divide each difficulty into as many parts as is feasible and necessary to resolve it.",
+    "attribution": "Rene Descartes",
+    "source": "Discourse on the Method",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "94",
+    "type": "fact",
+    "text": "People tend to seek out information that confirms what they already believe, and avoid what might contradict it.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "40",
+    "type": "quote",
+    "text": "It is not enough to have a good mind; the main thing is to use it well.",
+    "attribution": "Rene Descartes",
+    "source": "Discourse on the Method",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "95",
+    "type": "fact",
+    "text": "Watching someone else perform an action activates some of the same brain circuits as performing it yourself.",
+    "attribution": "Psychology",
+    "source": "Neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "96",
+    "type": "fact",
+    "text": "The presence of a single bystander reduces the odds that any one person will help in an emergency, and more bystanders reduce it further.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "41",
+    "type": "quote",
+    "text": "Fear cannot be without hope nor hope without fear.",
+    "attribution": "Baruch Spinoza",
+    "source": "Ethics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "97",
+    "type": "fact",
+    "text": "Simply naming an emotion out loud can measurably calm the brain's threat-response regions.",
+    "attribution": "Psychology",
+    "source": "Affective neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "42",
+    "type": "quote",
+    "text": "The greatest pride, or the greatest despondency, is the greatest ignorance of one's self.",
+    "attribution": "Baruch Spinoza",
+    "source": "Ethics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "98",
+    "type": "fact",
+    "text": "People are more likely to help a stranger right after they've experienced a small stroke of good luck themselves.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "99",
+    "type": "fact",
+    "text": "Changing the default option on a form can dramatically change how many people choose it, without changing the options themselves.",
+    "attribution": "Psychology",
+    "source": "Choice architecture",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "43",
+    "type": "quote",
+    "text": "Two things fill the mind with ever new and increasing admiration and awe: the starry heavens above me and the moral law within me.",
+    "attribution": "Immanuel Kant",
+    "source": "Critique of Practical Reason",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "100",
+    "type": "fact",
+    "text": "The brain treats social exclusion as a genuine threat, triggering stress responses similar to physical danger.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "44",
+    "type": "quote",
+    "text": "He who is cruel to animals becomes hard also in his dealings with men.",
+    "attribution": "Immanuel Kant",
+    "source": "Lectures on Ethics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "101",
+    "type": "fact",
+    "text": "People tend to believe, after the fact, that an event was more predictable than it actually was.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "102",
+    "type": "fact",
+    "text": "Comparing yourself to people slightly better off tends to lower satisfaction, while comparing to people slightly worse off tends to raise it.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "45",
+    "type": "quote",
+    "text": "He who has a why to live can bear almost any how.",
+    "attribution": "Friedrich Nietzsche",
+    "source": "Twilight of the Idols",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "103",
+    "type": "fact",
+    "text": "Children typically develop a working understanding of other people's beliefs and perspectives around age four.",
+    "attribution": "Psychology",
+    "source": "Developmental psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "46",
+    "type": "quote",
+    "text": "There is always some madness in love. But there is also always some reason in madness.",
+    "attribution": "Friedrich Nietzsche",
+    "source": "Thus Spoke Zarathustra",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "104",
+    "type": "fact",
+    "text": "Simply expecting a task to be difficult can change how much effort and attention we actually put into it.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "105",
+    "type": "fact",
+    "text": "People are more persuaded by an argument when they believe they arrived at the reasoning themselves.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "47",
+    "type": "quote",
+    "text": "One must still have chaos in oneself to be able to give birth to a dancing star.",
+    "attribution": "Friedrich Nietzsche",
+    "source": "Thus Spoke Zarathustra",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "106",
+    "type": "fact",
+    "text": "Chronic stress can shrink the hippocampus, the brain region central to forming new memories.",
+    "attribution": "Psychology",
+    "source": "Neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "48",
+    "type": "quote",
+    "text": "Without music, life would be a mistake.",
+    "attribution": "Friedrich Nietzsche",
+    "source": "Twilight of the Idols",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "107",
+    "type": "fact",
+    "text": "The brain consolidates and strengthens new memories primarily during deep sleep, not while awake.",
+    "attribution": "Psychology",
+    "source": "Sleep research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "108",
+    "type": "fact",
+    "text": "People tend to behave more honestly when there's a mirror in the room, even without realizing why.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "49",
+    "type": "quote",
+    "text": "Talent hits a target no one else can hit; genius hits a target no one else can see.",
+    "attribution": "Arthur Schopenhauer",
+    "source": "The World as Will and Representation",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "109",
+    "type": "fact",
+    "text": "Even brief exercise can measurably improve mood for hours afterward.",
+    "attribution": "Psychology",
+    "source": "Health psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "50",
+    "type": "quote",
+    "text": "The two enemies of human happiness are pain and boredom.",
+    "attribution": "Arthur Schopenhauer",
+    "source": "Studies in Pessimism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "110",
+    "type": "fact",
+    "text": "First impressions of a person's face form within a tenth of a second, before conscious thought has a chance to catch up.",
+    "attribution": "Psychology",
+    "source": "Social cognition",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "111",
+    "type": "fact",
+    "text": "Delaying gratification in childhood correlates with a range of positive outcomes later in life, though later research shows a stable home environment matters just as much as willpower.",
+    "attribution": "Psychology",
+    "source": "Developmental psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "51",
+    "type": "quote",
+    "text": "Life can only be understood backwards; but it must be lived forwards.",
+    "attribution": "Soren Kierkegaard",
+    "source": "Journals",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "112",
+    "type": "fact",
+    "text": "People tend to feel closer to a stranger after a structured series of increasingly personal questions exchanged between them.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "52",
+    "type": "quote",
+    "text": "Anxiety is the dizziness of freedom.",
+    "attribution": "Soren Kierkegaard",
+    "source": "The Concept of Anxiety",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "113",
+    "type": "fact",
+    "text": "The brain's reward system often responds more strongly to anticipating a reward than to actually receiving it.",
+    "attribution": "Psychology",
+    "source": "Neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "114",
+    "type": "fact",
+    "text": "Listing three things you're grateful for before bed is linked to measurably better sleep quality.",
+    "attribution": "Psychology",
+    "source": "Positive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "53",
+    "type": "quote",
+    "text": "Reason is, and ought only to be the slave of the passions.",
+    "attribution": "David Hume",
+    "source": "A Treatise of Human Nature",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "11",
+    "type": "fact",
+    "text": "We tend to judge how common or important something is by how easily examples come to mind. This is the availability heuristic.",
+    "attribution": "Psychology",
+    "source": "Judgment and decision-making",
+    "used": true,
+    "date_used": "2026-07-22"
+  },
+  {
+    "id": "54",
+    "type": "quote",
+    "text": "A wise man proportions his belief to the evidence.",
+    "attribution": "David Hume",
+    "source": "An Enquiry Concerning Human Understanding",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "55",
+    "type": "quote",
+    "text": "No man's knowledge here can go beyond his experience.",
+    "attribution": "John Locke",
+    "source": "An Essay Concerning Human Understanding",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "56",
+    "type": "quote",
+    "text": "It is better to be a human being dissatisfied than a pig satisfied.",
+    "attribution": "John Stuart Mill",
+    "source": "Utilitarianism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "57",
+    "type": "quote",
+    "text": "He who knows only his own side of the case knows little of that.",
+    "attribution": "John Stuart Mill",
+    "source": "On Liberty",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "58",
+    "type": "quote",
+    "text": "Doubt is not a pleasant condition, but certainty is absurd.",
+    "attribution": "Voltaire",
+    "source": "Letters",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "59",
+    "type": "quote",
+    "text": "Man is born free, and everywhere he is in chains.",
+    "attribution": "Jean-Jacques Rousseau",
+    "source": "The Social Contract",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "60",
+    "type": "quote",
+    "text": "Patience is bitter, but its fruit is sweet.",
+    "attribution": "Jean-Jacques Rousseau",
+    "source": "Emile",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "61",
+    "type": "quote",
+    "text": "All of humanity's problems stem from man's inability to sit quietly in a room alone.",
+    "attribution": "Blaise Pascal",
+    "source": "Pensees",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "62",
+    "type": "quote",
+    "text": "The heart has its reasons which reason knows nothing of.",
+    "attribution": "Blaise Pascal",
+    "source": "Pensees",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "63",
+    "type": "quote",
+    "text": "The greatest thing in the world is to know how to belong to oneself.",
+    "attribution": "Michel de Montaigne",
+    "source": "Essays",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "64",
+    "type": "quote",
+    "text": "He who fears he shall suffer, already suffers what he fears.",
+    "attribution": "Michel de Montaigne",
+    "source": "Essays",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "65",
+    "type": "quote",
+    "text": "Do every act of your life as if it were your last.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "66",
+    "type": "quote",
+    "text": "It is not death that a man should fear, but he should fear never beginning to live.",
+    "attribution": "Marcus Aurelius",
+    "source": "Meditations",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "67",
+    "type": "quote",
+    "text": "While we wait for life, life passes.",
+    "attribution": "Seneca",
+    "source": "On the Shortness of Life",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "68",
+    "type": "quote",
+    "text": "Seek not that the things which happen should happen as you wish; but wish the things which happen to be as they are.",
+    "attribution": "Epictetus",
+    "source": "Enchiridion",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "115",
+    "type": "fact",
+    "text": "Writing briefly about your core values before a stressful test is linked to better performance on it.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "116",
+    "type": "fact",
+    "text": "Our sense of how fast time passes seems to speed up with age, partly because each year is a smaller fraction of the life we've lived so far.",
+    "attribution": "Psychology",
+    "source": "Time perception research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "117",
+    "type": "fact",
+    "text": "Even a forced smile can slightly lift mood, through feedback from facial muscles to the brain.",
+    "attribution": "Psychology",
+    "source": "Affective psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "118",
+    "type": "fact",
+    "text": "People tend to trust information more when it's presented in a font that's easy to read.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "119",
+    "type": "fact",
+    "text": "The brain can form a snap judgment about a stranger's trustworthiness in under a tenth of a second.",
+    "attribution": "Psychology",
+    "source": "Social cognition",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "120",
+    "type": "fact",
+    "text": "Repeating a false claim, even to debunk it, can make it feel more familiar and therefore more believable later.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "121",
+    "type": "fact",
+    "text": "People tend to feel more pain from an injury they believe was caused deliberately than one caused by accident.",
+    "attribution": "Psychology",
+    "source": "Pain research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "122",
+    "type": "fact",
+    "text": "A short period of boredom often boosts creative thinking immediately afterward.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "123",
+    "type": "fact",
+    "text": "A supportive touch, like a hand on the shoulder, can measurably lower stress hormone levels.",
+    "attribution": "Psychology",
+    "source": "Health psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "124",
+    "type": "fact",
+    "text": "People consistently underestimate how much their personality and preferences will change in the future, even while acknowledging how much they've already changed.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "125",
+    "type": "fact",
+    "text": "Choice overload can be reduced simply by grouping similar options into clearly labeled categories.",
+    "attribution": "Psychology",
+    "source": "Choice architecture",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "126",
+    "type": "fact",
+    "text": "A short walk in a natural setting restores attention and reduces mental fatigue more effectively than a walk through a city.",
+    "attribution": "Psychology",
+    "source": "Environmental psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "127",
+    "type": "fact",
+    "text": "People tend to make riskier choices when a potential loss is framed as avoidable, compared to when the same outcome is framed as a gain forfeited.",
+    "attribution": "Psychology",
+    "source": "Behavioral economics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "128",
+    "type": "fact",
+    "text": "Two people who feel socially close to each other show more synchronized brain activity while having a conversation.",
+    "attribution": "Psychology",
+    "source": "Social neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "129",
+    "type": "fact",
+    "text": "Believing you have more control over a random event, like rolling dice yourself instead of watching someone else, can make you feel more confident about the outcome.",
+    "attribution": "Psychology",
+    "source": "Cognitive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "130",
+    "type": "fact",
+    "text": "People tend to eat more food when eating in a group than when eating alone, regardless of hunger level.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "131",
+    "type": "fact",
+    "text": "A brief period of physical discomfort, like holding an uncomfortable position, can measurably increase feelings of moral seriousness in a decision made right after.",
+    "attribution": "Psychology",
+    "source": "Embodied cognition",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "132",
+    "type": "fact",
+    "text": "Deciding in advance exactly when and where you'll do something makes you significantly more likely to follow through, a technique called an implementation intention.",
+    "attribution": "Psychology",
+    "source": "Goal-setting research",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "133",
+    "type": "fact",
+    "text": "People are more likely to comply with a large request after first agreeing to a smaller, related one.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "134",
+    "type": "fact",
+    "text": "People are sometimes more likely to agree to a smaller request after first refusing a larger one.",
+    "attribution": "Psychology",
+    "source": "Social psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "135",
+    "type": "fact",
+    "text": "The brain's stress response can be measurably reduced just by reframing anxiety as excitement before a challenging task.",
+    "attribution": "Psychology",
+    "source": "Affective psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "136",
+    "type": "fact",
+    "text": "People who feel awe, such as looking at a vast landscape, tend to report feeling like time is more abundant afterward.",
+    "attribution": "Psychology",
+    "source": "Positive psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "137",
+    "type": "fact",
+    "text": "Simply looking at images of nature, even in photographs, can modestly reduce stress compared to looking at urban scenes.",
+    "attribution": "Psychology",
+    "source": "Environmental psychology",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "138",
+    "type": "fact",
+    "text": "The brain updates its beliefs faster in response to good news than to bad news of equal size, a pattern called the optimism bias in learning.",
+    "attribution": "Psychology",
+    "source": "Cognitive neuroscience",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "139",
+    "type": "quote",
+    "text": "The whole is more than the sum of its parts.",
+    "attribution": "Aristotle",
+    "source": "Metaphysics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "140",
+    "type": "quote",
+    "text": "Man is by nature a political animal.",
+    "attribution": "Aristotle",
+    "source": "Politics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "141",
+    "type": "quote",
+    "text": "While there's life, there's hope.",
+    "attribution": "Cicero",
+    "source": "Letters to Atticus",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "142",
+    "type": "quote",
+    "text": "The life of the dead is placed in the memory of the living.",
+    "attribution": "Cicero",
+    "source": "Philippics",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "143",
+    "type": "quote",
+    "text": "Knowledge is power.",
+    "attribution": "Francis Bacon",
+    "source": "Meditationes Sacrae",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "144",
+    "type": "quote",
+    "text": "Reading maketh a full man; conference a ready man; and writing an exact man.",
+    "attribution": "Francis Bacon",
+    "source": "Essays",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "145",
+    "type": "quote",
+    "text": "Covenants, without the sword, are but words.",
+    "attribution": "Thomas Hobbes",
+    "source": "Leviathan",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "146",
+    "type": "quote",
+    "text": "The owl of Minerva spreads its wings only with the falling of the dusk.",
+    "attribution": "Georg Wilhelm Friedrich Hegel",
+    "source": "Philosophy of Right",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "147",
+    "type": "quote",
+    "text": "The only way to have a friend is to be one.",
+    "attribution": "Ralph Waldo Emerson",
+    "source": "Essays: Friendship",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "148",
+    "type": "quote",
+    "text": "The mass of men lead lives of quiet desperation.",
+    "attribution": "Henry David Thoreau",
+    "source": "Walden",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "149",
+    "type": "quote",
+    "text": "Go confidently in the direction of your dreams. Live the life you've imagined.",
+    "attribution": "Henry David Thoreau",
+    "source": "Walden",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "150",
+    "type": "quote",
+    "text": "By failing to prepare, you are preparing to fail.",
+    "attribution": "Benjamin Franklin",
+    "source": "Attributed",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "151",
+    "type": "quote",
+    "text": "An investment in knowledge pays the best interest.",
+    "attribution": "Benjamin Franklin",
+    "source": "Attributed",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "152",
+    "type": "quote",
+    "text": "He suffers more than necessary, who suffers before it is necessary.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "153",
+    "type": "quote",
+    "text": "Associate with people who are likely to improve you.",
+    "attribution": "Seneca",
+    "source": "Letters from a Stoic",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "154",
+    "type": "quote",
+    "text": "Reading furnishes the mind only with materials of knowledge; it is thinking that makes what we read ours.",
+    "attribution": "John Locke",
+    "source": "An Essay Concerning Human Understanding",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "155",
+    "type": "quote",
+    "text": "Beauty in things exists in the mind which contemplates them.",
+    "attribution": "David Hume",
+    "source": "Of the Standard of Taste",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "156",
+    "type": "quote",
+    "text": "The only freedom which deserves the name is that of pursuing our own good in our own way.",
+    "attribution": "John Stuart Mill",
+    "source": "On Liberty",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "157",
+    "type": "quote",
+    "text": "A pupil from whom nothing is ever demanded which he cannot do, never does all he can.",
+    "attribution": "John Stuart Mill",
+    "source": "On Liberty",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "158",
+    "type": "quote",
+    "text": "Common sense is not so common.",
+    "attribution": "Voltaire",
+    "source": "Dictionnaire philosophique",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "159",
+    "type": "quote",
+    "text": "To renounce liberty is to renounce being a man.",
+    "attribution": "Jean-Jacques Rousseau",
+    "source": "The Social Contract",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "160",
+    "type": "quote",
+    "text": "The last thing one knows in constructing a work is what to put first.",
+    "attribution": "Blaise Pascal",
+    "source": "Pensees",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "161",
+    "type": "quote",
+    "text": "I quote others only to better express myself.",
+    "attribution": "Michel de Montaigne",
+    "source": "Essays",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": "162",
+    "type": "quote",
+    "text": "First learn the meaning of what you say, and then speak.",
+    "attribution": "Epictetus",
+    "source": "Discourses",
+    "used": false,
+    "date_used": ""
+  }
+]

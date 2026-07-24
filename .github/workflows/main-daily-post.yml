@@ -1,0 +1,86 @@
+name: Main Daily Post
+on:
+  schedule:
+    - cron: '0 13 * * *'  # Daily, 13:00 UTC (9am EDT)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip3 install --break-system-packages Pillow requests
+
+      - name: Select next content
+        working-directory: main
+        run: python3 select_next.py
+
+      - name: Composite card image
+        run: |
+          python3 composite_card.py "$(cat main/_selected_text.txt)" "$(cat main/_selected_attribution.txt)" "$(cat main/_selected_source.txt)" "$(cat main/_selected_id.txt)"
+
+      - name: Save Pinterest image and prep video
+        run: |
+          mkdir -p pins videos
+          ROW_ID=$(cat main/_selected_id.txt)
+          cp card.png "pins/main-${ROW_ID}.png"
+
+      - name: Render video with audio
+        run: |
+          ROW_ID=$(cat main/_selected_id.txt)
+          TRACK_NUM=$(( (ROW_ID % 5) + 1 ))
+          TRACK="track${TRACK_NUM}.mp3.mp3"
+          ffmpeg -y -loop 1 -i card.png -stream_loop -1 -i "$TRACK" -t 30 \
+          -c:v libx264 -pix_fmt yuv420p -r 30 \
+          -c:a aac -b:a 128k -shortest \
+          "videos/main-${ROW_ID}.mp4"
+
+      - name: Commit rendered assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          ROW_ID=$(cat main/_selected_id.txt)
+          git add "pins/main-${ROW_ID}.png" "videos/main-${ROW_ID}.mp4"
+          git commit -m "Main content render: row ${ROW_ID}"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
+
+      - name: Wait for GitHub Pages deployment
+        run: sleep 90
+
+      - name: Post to all platforms
+        working-directory: main
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_X_CHANNEL_ID: ${{ secrets.BUFFER_X_CHANNEL_ID }}
+          BUFFER_THREADS_CHANNEL_ID: ${{ secrets.BUFFER_THREADS_CHANNEL_ID }}
+          BUFFER_PINTEREST_CHANNEL_ID: ${{ secrets.BUFFER_PINTEREST_CHANNEL_ID }}
+          BUFFER_PINTEREST_BOARD_ID: ${{ secrets.BUFFER_PINTEREST_BOARD_ID }}
+        run: python3 post_all.py
+
+      - name: Update state and content tracking
+        working-directory: main
+        run: python3 update_state.py
+
+      - name: Commit state update
+        working-directory: main
+        run: |
+          git add content.json state.json
+          git commit -m "Mark main content used: row $(cat _selected_id.txt)"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
