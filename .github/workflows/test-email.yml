@@ -1,0 +1,18 @@
+name: Test Email Reminder
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send test email
+        working-directory: reminders
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REMINDER_EMAIL_TO: ${{ secrets.REMINDER_EMAIL_TO }}
+          REMINDER_EMAIL_FROM: ${{ secrets.REMINDER_EMAIL_FROM }}
+        run: |
+          echo "This is a test of the reminder email system for @the_higher_being. If you're reading this, everything works correctly." > _test_body.txt
+          python3 send_email.py "Test: Reminder system check" _test_body.txt
