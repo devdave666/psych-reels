@@ -59,8 +59,11 @@ def render_slide(title, label, lines, page_num, total_pages, out_path):
 
     y = 155
     if page_num == 1:
-        draw.text((MARGIN, y), title, font=title_font, fill=(255, 255, 255))
-        y += 105
+        title_lines = wrap_paragraph(title, title_font, MAX_WIDTH, draw)
+        for tline in title_lines:
+            draw.text((MARGIN, y), tline, font=title_font, fill=(255, 255, 255))
+            y += 54
+        y += 40
     else:
         y += 20
 
@@ -86,9 +89,12 @@ def main():
     dummy_img = Image.new('RGB', (W, H))
     draw = ImageDraw.Draw(dummy_img)
     body_font = ImageFont.truetype(BODY_FONT_PATH, 34)
+    title_font = ImageFont.truetype(TITLE_FONT_PATH, 46)
 
     paragraphs = body.split('\n\n')
-    usable_height_page1 = H - 155 - 105 - 120  # after title
+    title_lines = wrap_paragraph(title, title_font, MAX_WIDTH, draw)
+    title_height = len(title_lines) * 54 + 40
+    usable_height_page1 = H - 155 - title_height - 120  # after title, however many lines it needs
     usable_height_pagen = H - 155 - 20 - 120   # no title on continuation pages
     line_height = 46
     para_gap = 30

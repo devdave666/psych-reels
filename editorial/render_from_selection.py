@@ -17,9 +17,12 @@ from PIL import Image, ImageDraw, ImageFont
 dummy_img = Image.new('RGB', (re_mod.W, re_mod.H))
 draw = ImageDraw.Draw(dummy_img)
 body_font = ImageFont.truetype(re_mod.BODY_FONT_PATH, 34)
+title_font = ImageFont.truetype(re_mod.TITLE_FONT_PATH, 46)
 
 paragraphs = body.split('\n\n')
-usable_height_page1 = re_mod.H - 155 - 105 - 120
+title_lines = re_mod.wrap_paragraph(title, title_font, re_mod.MAX_WIDTH, draw)
+title_height = len(title_lines) * 54 + 40
+usable_height_page1 = re_mod.H - 155 - title_height - 120
 usable_height_pagen = re_mod.H - 155 - 20 - 120
 line_height = 46
 para_gap = 30
