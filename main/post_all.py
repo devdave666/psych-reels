@@ -68,7 +68,7 @@ print(f"Instagram published: {publish['id']}")
 
 
 # --- Buffer: X, Threads, Pinterest ---
-def buffer_post(channel_id, text_content, image_url=None, board_id=None):
+def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_title=None):
     gql_parts = [
         f'text: "{text_content}"'.replace("\n", "\\n"),
         f'channelId: "{channel_id}"',
@@ -78,7 +78,11 @@ def buffer_post(channel_id, text_content, image_url=None, board_id=None):
     if image_url:
         gql_parts.append(f'assets: {{ image: {{ url: "{image_url}" }} }}')
     if board_id:
-        gql_parts.append(f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}" }} }}')
+        meta = f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}"'
+        if pin_title:
+            meta += f', title: "{pin_title}"'
+        meta += ' } }'
+        gql_parts.append(meta)
     query = (
         "mutation CreatePost { createPost(input: { " + ", ".join(gql_parts) +
         " }) { ... on PostActionSuccess { post { id } } ... on MutationError { message } } }"
@@ -97,11 +101,11 @@ def buffer_post(channel_id, text_content, image_url=None, board_id=None):
     return result["post"]["id"]
 
 
-def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=None, retries=3):
+def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=None, pin_title=None, retries=3):
     last_error = None
     for attempt in range(retries):
         try:
-            return buffer_post(channel_id, text_content, image_url, board_id)
+            return buffer_post(channel_id, text_content, image_url, board_id, pin_title)
         except Exception as e:
             last_error = e
             print(f"Attempt {attempt+1} failed: {e}, retrying in {(attempt+1)*8}s...")
@@ -117,7 +121,26 @@ print(f"X posted: {x_id}")
 threads_id = buffer_post_with_retry(THREADS_CHANNEL_ID, caption_escaped)
 print(f"Threads posted: {threads_id}")
 
-pin_id = buffer_post_with_retry(PINTEREST_CHANNEL_ID, caption_escaped, image_url=pin_url, board_id=PINTEREST_BOARD_ID)
+# Pinterest ranks on keywords in titles/descriptions, not hashtags (~1% of ranking).
+# So Pinterest gets its own SEO-optimized copy rather than reusing the social caption.
+import pinterest_seo
+
+with open('_selected_attribution.txt') as f:
+    attribution = f.read()
+with open('_selected_source.txt') as f:
+    source = f.read()
+
+pin_title = pinterest_seo.build_title(text, attribution, content_type, row_id)
+pin_description = pinterest_seo.build_description(text, attribution, source, content_type, row_id)
+
+pin_id = buffer_post_with_retry(
+    PINTEREST_CHANNEL_ID,
+    pin_description.replace('"', '\\"'),
+    image_url=pin_url,
+    board_id=PINTEREST_BOARD_ID,
+    pin_title=pin_title.replace('"', '\\"')
+)
 print(f"Pinterest posted: {pin_id}")
+print(f"  title: {pin_title}")
 
 print("ALL_PLATFORMS_SUCCESS")
