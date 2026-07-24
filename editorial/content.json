@@ -68,5 +68,75 @@
     "hashtags": "#philosophy #psychology #stoicism",
     "used": false,
     "date_used": ""
+  },
+  {
+    "id": 8,
+    "title": "Spinoza's 350-Year-Old Emotional Trick",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Spinoza argued in his Ethics that an emotion stops controlling us the moment we form a clear and precise idea of it. Vague, unexamined feelings have power over us. Named, understood feelings lose their grip.\n\nModern neuroscience calls this affect labeling. Studies using brain imaging show that simply putting a feeling into words, saying \"I am anxious\" instead of just feeling anxious, measurably reduces activity in the amygdala, the brain's threat-detection center, within seconds.\n\nSpinoza had no fMRI machine. He built an entire philosophical system on the observation that clarity defuses feeling, three and a half centuries before anyone could watch it happen on a scan.",
+    "cta": "Comment the feeling you've been avoiding naming. Naming it here starts the defusing.",
+    "hashtags": "#philosophy #psychology #spinoza",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 9,
+    "title": "Plato Described the Dunning-Kruger Effect, in a Cave",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "In Plato's allegory of the cave, prisoners who have only ever seen shadows on a wall are certain the shadows are reality. When one is freed and sees the actual world outside, his first instinct isn't gratitude, it's disorientation, then a strange confidence that he now understands everything.\n\nIn 1999, psychologists Justin Kruger and David Dunning ran a series of studies showing that people with the least competence in a skill tend to rate their own ability the highest, precisely because the skills needed to be good at something are the same skills needed to recognize you're bad at it.\n\nPlato's cave wasn't just a metaphor about truth and illusion. It was a description of exactly how it feels to not know what you don't know, and how strange it feels the first time you find out.",
+    "cta": "Comment a topic where you once felt certain, before you learned enough to realize how much you didn't know.",
+    "hashtags": "#philosophy #psychology #plato",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 10,
+    "title": "John Stuart Mill and the Science of Autonomy",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Mill's harm principle argued that a person's own choices over their own life should be left alone, as long as they don't harm others, even if society or authority thinks it knows better. He believed people flourish specifically when they are the authors of their own decisions, not the subjects of someone else's.\n\nSelf-determination theory, one of the most replicated frameworks in modern psychology, found the same thing from a completely different direction: autonomy, the sense that your actions are self-chosen rather than imposed, is one of three core needs for psychological well-being, alongside competence and connection. People coerced into a behavior, even a good one, show less lasting motivation than people who choose it freely.\n\nMill was making a political argument. It turns out he was also describing a basic requirement of the human nervous system.",
+    "cta": "Comment one area of your life where a choice was made for you, that you're ready to reclaim as your own.",
+    "hashtags": "#philosophy #psychology #stoicism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 11,
+    "title": "David Hume Figured Out Why We Trust Familiar Things",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Hume argued that belief itself isn't built on reason so much as on habit and repetition. We come to expect the sun will rise not because we've logically proven it must, but because we've seen it happen so many times that the expectation has become automatic, almost involuntary.\n\nThe mere-exposure effect, one of the most replicated findings in social psychology, shows exactly this: repeated exposure to something, a face, a song, a brand, a claim, measurably increases how much we like or trust it, entirely separate from whether it deserves that trust.\n\nHume's insight had an uncomfortable edge to it. If belief is built on repetition rather than reason, then anything repeated enough starts to feel true, whether or not it actually is.",
+    "cta": "Comment a belief you're not sure you actually reasoned your way into, or just absorbed through repetition.",
+    "hashtags": "#philosophy #psychology #davidhume",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 12,
+    "title": "Kant's Rule for Duty, Confirmed by Motivation Research",
+    "label": "ANCIENT INTUITION. MODERN PROOF.",
+    "body": "Kant held that \"ought implies can\": you cannot be morally obligated to do something you are genuinely incapable of doing. Duty only makes sense in the space of real possibility.\n\nPsychologist Albert Bandura's decades of research on self-efficacy, a person's belief in their own capacity to carry out a specific action, found something structurally similar: people rarely even attempt goals they don't believe are within their capability, regardless of whether the goal is actually achievable. Belief in capability comes before the attempt, not after it.\n\nKant was building a moral framework. Bandura was studying behavior change. They landed on the same hinge point: nothing gets attempted, moral or otherwise, until a person believes it's genuinely within their reach.",
+    "cta": "Comment one thing you've been avoiding, not because it's wrong, but because you don't yet believe you can.",
+    "hashtags": "#philosophy #psychology #kant",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 13,
+    "title": "The Beggar Who Told an Emperor to Move",
+    "label": "A STORY WORTH KEEPING",
+    "body": "Diogenes lived in a barrel in the middle of Athens, owned almost nothing, and was, by every account, one of the freest men anyone had ever met.\n\nAlexander the Great, the most powerful man alive, came to see him in person. He found Diogenes sitting in the sun and told him he could have anything he wanted, just name it.\n\nDiogenes looked up and said, \"You're blocking my sunlight. Move.\"\n\nThat was the entire request. Not gold. Not land. Not a title. Alexander reportedly walked away saying that if he were not Alexander, he would wish to be Diogenes.\n\nThe philosophers who studied contentment noticed something psychologists would later confirm with data: people adapt to almost any level of wealth or comfort within months, a phenomenon called hedonic adaptation, and end up right back at their baseline level of satisfaction. Diogenes had simply refused to climb onto that treadmill in the first place. He wasn't poor. He had just stopped needing anything he didn't already have.",
+    "cta": "Comment one thing you think you need, that you'd probably be just as content without.",
+    "hashtags": "#philosophy #psychology #stoicism",
+    "used": false,
+    "date_used": ""
+  },
+  {
+    "id": 14,
+    "title": "Why a Roman Senator Practiced Being Poor",
+    "label": "A STORY WORTH KEEPING",
+    "body": "Seneca, one of the wealthiest men in Rome, had an unusual habit. For a set number of days every so often, he would sleep on the ground, wear the roughest clothes he owned, and eat the cheapest food available. Not as punishment. As training.\n\nHe wrote that the goal was to be able to say to himself, \"is this what I was afraid of?\", and know, from direct experience, that the answer was no. Poverty rehearsed on purpose stopped being a threat that could be used against him.\n\nThis maps closely onto what modern psychology calls hedonic adaptation and its lesser-known cousin: humans recalibrate their sense of \"enough\" based on what they're used to, in both directions. Seneca was deliberately lowering his own baseline so that ordinary comfort felt, permanently, like abundance.\n\nHe never gave up his wealth. He just made sure his wealth had stopped owning him.",
+    "cta": "Comment one comfort you've quietly started to take for granted.",
+    "hashtags": "#philosophy #psychology #seneca",
+    "used": false,
+    "date_used": ""
   }
 ]
