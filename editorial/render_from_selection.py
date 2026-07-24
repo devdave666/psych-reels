@@ -9,6 +9,11 @@ with open('_selected_label.txt') as f:
     label = f.read()
 with open('_selected_body.txt') as f:
     body = f.read()
+try:
+    with open('_selected_cta.txt') as f:
+        cta = f.read().strip()
+except FileNotFoundError:
+    cta = None
 
 # Reuse render_essay logic by calling its functions directly
 import render_essay as re_mod
@@ -22,8 +27,9 @@ title_font = ImageFont.truetype(re_mod.TITLE_FONT_PATH, 46)
 paragraphs = body.split('\n\n')
 title_lines = re_mod.wrap_paragraph(title, title_font, re_mod.MAX_WIDTH, draw)
 title_height = len(title_lines) * 54 + 40
-usable_height_page1 = re_mod.H - 155 - title_height - 120
-usable_height_pagen = re_mod.H - 155 - 20 - 120
+CTA_RESERVE = 220
+usable_height_page1 = re_mod.H - 155 - title_height - 120 - CTA_RESERVE
+usable_height_pagen = re_mod.H - 155 - 20 - 120 - CTA_RESERVE
 line_height = 46
 para_gap = 30
 
@@ -52,7 +58,8 @@ import os
 os.makedirs('output', exist_ok=True)
 for i, page_lines in enumerate(pages, start=1):
     out_path = f'output/row-{idx}-slide{i}.png'
-    re_mod.render_slide(title, label, page_lines, i, total_pages, out_path)
+    slide_cta = cta if (i == total_pages and cta) else None
+    re_mod.render_slide(title, label, page_lines, i, total_pages, out_path, cta=slide_cta)
     print(f"Rendered {out_path}")
 
 with open('_total_slides.txt', 'w') as f:

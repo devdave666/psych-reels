@@ -27,6 +27,8 @@ for offset in range(n):
             f.write(entry['hashtags'])
         with open('_selected_index.txt', 'w') as f:
             f.write(str(idx))
+        with open('_selected_cta.txt', 'w') as f:
+            f.write(entry.get('cta', ''))
         sys.exit(0)
 
 print("ERROR: no unused content left")

@@ -18,12 +18,18 @@ with open('_selected_hashtags.txt') as f:
     hashtags = f.read()
 with open('_total_slides.txt') as f:
     total_slides = int(f.read().strip())
+try:
+    with open('_selected_cta.txt') as f:
+        cta = f.read().strip()
+except FileNotFoundError:
+    cta = ''
 
-# Build the caption from the first paragraph of the body (a natural hook) + hashtags
+# Build the caption from the first paragraph of the body (a natural hook) + CTA + hashtags
 with open('_selected_body.txt') as f:
     body = f.read()
 first_para = body.split('\n\n')[0]
-caption = f"{first_para}\n\n{hashtags}"
+cta_block = f"\n\n{cta}" if cta else ""
+caption = f"{first_para}{cta_block}\n\n{hashtags}"
 
 slide_urls = [f"{BASE_URL}/row-{idx}-slide{i}.png" for i in range(1, total_slides + 1)]
 

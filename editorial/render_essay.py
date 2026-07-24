@@ -45,7 +45,7 @@ def paginate(paragraphs, body_font, draw, usable_height, line_height, para_gap):
         pages.append(current_page_lines)
     return pages
 
-def render_slide(title, label, lines, page_num, total_pages, out_path):
+def render_slide(title, label, lines, page_num, total_pages, out_path, cta=None):
     img = Image.new('RGB', (W, H), (10, 10, 10))
     draw = ImageDraw.Draw(img)
 
@@ -53,6 +53,7 @@ def render_slide(title, label, lines, page_num, total_pages, out_path):
     body_font = ImageFont.truetype(BODY_FONT_PATH, 34)
     label_font = ImageFont.truetype(TITLE_FONT_PATH, 20)
     page_font = ImageFont.truetype(BODY_FONT_PATH, 20)
+    cta_font = ImageFont.truetype(TITLE_FONT_PATH, 38)
 
     draw.line([(MARGIN, 80), (MARGIN + 60, 80)], fill=(184, 134, 46), width=2)
     draw.text((MARGIN, 100), label, font=label_font, fill=(184, 134, 46))
@@ -75,6 +76,17 @@ def render_slide(title, label, lines, page_num, total_pages, out_path):
         draw.text((MARGIN, y), item, font=body_font, fill=(225, 225, 225))
         y += line_height
 
+    # CTA block: only on the final slide, visually distinct so it can't be missed on a glance
+    if cta:
+        cta_lines = wrap_paragraph(cta, cta_font, MAX_WIDTH, draw)
+        cta_height = len(cta_lines) * 50
+        footer_reserved = 130
+        cta_y = max(y + 50, H - footer_reserved - cta_height - 40)
+        draw.line([(MARGIN, cta_y - 30), (W - MARGIN, cta_y - 30)], fill=(184, 134, 46), width=2)
+        for cline in cta_lines:
+            draw.text((MARGIN, cta_y), cline, font=cta_font, fill=(230, 178, 96))
+            cta_y += 50
+
     draw.text((MARGIN, H - 90), "@the_higher_being", font=page_font, fill=(150, 150, 150))
     draw.text((W - MARGIN - 50, H - 90), f"{page_num}/{total_pages}", font=page_font, fill=(150, 150, 150))
 
@@ -85,6 +97,7 @@ def main():
     title = sys.argv[2]
     label = sys.argv[3]
     body = sys.argv[4]
+    cta = sys.argv[5] if len(sys.argv) > 5 else None
 
     dummy_img = Image.new('RGB', (W, H))
     draw = ImageDraw.Draw(dummy_img)
@@ -94,8 +107,9 @@ def main():
     paragraphs = body.split('\n\n')
     title_lines = wrap_paragraph(title, title_font, MAX_WIDTH, draw)
     title_height = len(title_lines) * 54 + 40
-    usable_height_page1 = H - 155 - title_height - 120  # after title, however many lines it needs
-    usable_height_pagen = H - 155 - 20 - 120   # no title on continuation pages
+    CTA_RESERVE = 220  # consistent reserved space so the last slide's CTA never overlaps body text
+    usable_height_page1 = H - 155 - title_height - 120 - CTA_RESERVE
+    usable_height_pagen = H - 155 - 20 - 120 - CTA_RESERVE
     line_height = 46
     para_gap = 30
 
@@ -124,7 +138,8 @@ def main():
     os.makedirs('output', exist_ok=True)
     for i, page_lines in enumerate(pages, start=1):
         out_path = f'output/row-{row_id}-slide{i}.png'
-        render_slide(title, label, page_lines, i, total_pages, out_path)
+        slide_cta = cta if (i == total_pages and cta) else None
+        render_slide(title, label, page_lines, i, total_pages, out_path, cta=slide_cta)
         print(f"Rendered {out_path}")
 
     print(f"TOTAL_SLIDES={total_pages}")
