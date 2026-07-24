@@ -45,7 +45,7 @@ def paginate(paragraphs, body_font, draw, usable_height, line_height, para_gap):
         pages.append(current_page_lines)
     return pages
 
-def render_slide(title, label, lines, page_num, total_pages, out_path, cta=None):
+def render_slide(title, label, lines, page_num, total_pages, out_path):
     img = Image.new('RGB', (W, H), (10, 10, 10))
     draw = ImageDraw.Draw(img)
 
@@ -53,7 +53,6 @@ def render_slide(title, label, lines, page_num, total_pages, out_path, cta=None)
     body_font = ImageFont.truetype(BODY_FONT_PATH, 34)
     label_font = ImageFont.truetype(TITLE_FONT_PATH, 20)
     page_font = ImageFont.truetype(BODY_FONT_PATH, 20)
-    cta_font = ImageFont.truetype(TITLE_FONT_PATH, 38)
 
     draw.line([(MARGIN, 80), (MARGIN + 60, 80)], fill=(184, 134, 46), width=2)
     draw.text((MARGIN, 100), label, font=label_font, fill=(184, 134, 46))
@@ -76,18 +75,50 @@ def render_slide(title, label, lines, page_num, total_pages, out_path, cta=None)
         draw.text((MARGIN, y), item, font=body_font, fill=(225, 225, 225))
         y += line_height
 
-    # CTA block: only on the final slide, visually distinct so it can't be missed on a glance
-    if cta:
-        cta_lines = wrap_paragraph(cta, cta_font, MAX_WIDTH, draw)
-        cta_height = len(cta_lines) * 50
-        footer_reserved = 130
-        cta_y = max(y + 50, H - footer_reserved - cta_height - 40)
-        draw.line([(MARGIN, cta_y - 30), (W - MARGIN, cta_y - 30)], fill=(184, 134, 46), width=2)
-        for cline in cta_lines:
-            draw.text((MARGIN, cta_y), cline, font=cta_font, fill=(230, 178, 96))
-            cta_y += 50
-
     draw.text((MARGIN, H - 90), "@the_higher_being", font=page_font, fill=(150, 150, 150))
+    draw.text((W - MARGIN - 50, H - 90), f"{page_num}/{total_pages}", font=page_font, fill=(150, 150, 150))
+
+    img.save(out_path)
+
+def render_cta_slide(cta, page_num, total_pages, out_path):
+    """A dedicated final slide, just for the CTA -- the standard IG carousel convention."""
+    img = Image.new('RGB', (W, H), (10, 10, 10))
+    draw = ImageDraw.Draw(img)
+
+    cta_font = ImageFont.truetype(TITLE_FONT_PATH, 52)
+    eyebrow_font = ImageFont.truetype(TITLE_FONT_PATH, 22)
+    page_font = ImageFont.truetype(BODY_FONT_PATH, 20)
+
+    eyebrow = "YOUR TURN"
+    eyebrow_bbox = draw.textbbox((0, 0), eyebrow, font=eyebrow_font)
+    eyebrow_w = eyebrow_bbox[2] - eyebrow_bbox[0]
+
+    cta_lines = wrap_paragraph(cta, cta_font, MAX_WIDTH, draw)
+    line_height = 66
+    total_text_height = len(cta_lines) * line_height
+
+    # Vertically center the whole block (eyebrow + rule + CTA text)
+    block_height = 40 + 30 + total_text_height
+    start_y = (H - block_height) / 2
+
+    eyebrow_x = (W - eyebrow_w) / 2
+    draw.text((eyebrow_x, start_y), eyebrow, font=eyebrow_font, fill=(184, 134, 46))
+
+    rule_y = start_y + 40
+    draw.line([(W/2 - 40, rule_y), (W/2 + 40, rule_y)], fill=(184, 134, 46), width=2)
+
+    y = rule_y + 40
+    for line in cta_lines:
+        line_bbox = draw.textbbox((0, 0), line, font=cta_font)
+        line_w = line_bbox[2] - line_bbox[0]
+        x = (W - line_w) / 2
+        draw.text((x, y), line, font=cta_font, fill=(255, 255, 255))
+        y += line_height
+
+    footer_text = "@the_higher_being"
+    footer_bbox = draw.textbbox((0, 0), footer_text, font=page_font)
+    footer_w = footer_bbox[2] - footer_bbox[0]
+    draw.text(((W - footer_w) / 2, H - 90), footer_text, font=page_font, fill=(150, 150, 150))
     draw.text((W - MARGIN - 50, H - 90), f"{page_num}/{total_pages}", font=page_font, fill=(150, 150, 150))
 
     img.save(out_path)
@@ -107,9 +138,8 @@ def main():
     paragraphs = body.split('\n\n')
     title_lines = wrap_paragraph(title, title_font, MAX_WIDTH, draw)
     title_height = len(title_lines) * 54 + 40
-    CTA_RESERVE = 220  # consistent reserved space so the last slide's CTA never overlaps body text
-    usable_height_page1 = H - 155 - title_height - 120 - CTA_RESERVE
-    usable_height_pagen = H - 155 - 20 - 120 - CTA_RESERVE
+    usable_height_page1 = H - 155 - title_height - 120
+    usable_height_pagen = H - 155 - 20 - 120
     line_height = 46
     para_gap = 30
 
@@ -134,13 +164,17 @@ def main():
     if current_lines:
         pages.append(current_lines)
 
-    total_pages = len(pages)
+    total_pages = len(pages) + (1 if cta else 0)
     os.makedirs('output', exist_ok=True)
     for i, page_lines in enumerate(pages, start=1):
         out_path = f'output/row-{row_id}-slide{i}.png'
-        slide_cta = cta if (i == total_pages and cta) else None
-        render_slide(title, label, page_lines, i, total_pages, out_path, cta=slide_cta)
+        render_slide(title, label, page_lines, i, total_pages, out_path)
         print(f"Rendered {out_path}")
+
+    if cta:
+        cta_path = f'output/row-{row_id}-slide{total_pages}.png'
+        render_cta_slide(cta, total_pages, total_pages, cta_path)
+        print(f"Rendered {cta_path}")
 
     print(f"TOTAL_SLIDES={total_pages}")
 

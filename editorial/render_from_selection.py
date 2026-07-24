@@ -27,9 +27,8 @@ title_font = ImageFont.truetype(re_mod.TITLE_FONT_PATH, 46)
 paragraphs = body.split('\n\n')
 title_lines = re_mod.wrap_paragraph(title, title_font, re_mod.MAX_WIDTH, draw)
 title_height = len(title_lines) * 54 + 40
-CTA_RESERVE = 220
-usable_height_page1 = re_mod.H - 155 - title_height - 120 - CTA_RESERVE
-usable_height_pagen = re_mod.H - 155 - 20 - 120 - CTA_RESERVE
+usable_height_page1 = re_mod.H - 155 - title_height - 120
+usable_height_pagen = re_mod.H - 155 - 20 - 120
 line_height = 46
 para_gap = 30
 
@@ -53,14 +52,18 @@ for para in paragraphs:
 if current_lines:
     pages.append(current_lines)
 
-total_pages = len(pages)
+total_pages = len(pages) + (1 if cta else 0)
 import os
 os.makedirs('output', exist_ok=True)
 for i, page_lines in enumerate(pages, start=1):
     out_path = f'output/row-{idx}-slide{i}.png'
-    slide_cta = cta if (i == total_pages and cta) else None
-    re_mod.render_slide(title, label, page_lines, i, total_pages, out_path, cta=slide_cta)
+    re_mod.render_slide(title, label, page_lines, i, total_pages, out_path)
     print(f"Rendered {out_path}")
+
+if cta:
+    cta_path = f'output/row-{idx}-slide{total_pages}.png'
+    re_mod.render_cta_slide(cta, total_pages, total_pages, cta_path)
+    print(f"Rendered {cta_path}")
 
 with open('_total_slides.txt', 'w') as f:
     f.write(str(total_pages))
