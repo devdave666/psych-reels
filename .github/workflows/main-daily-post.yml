@@ -84,3 +84,25 @@ jobs:
             echo "Push failed, retrying ($i)..."
             sleep 5
           done
+
+      - name: Check token expiry and content levels, send reminders if needed
+        if: always()
+        working-directory: reminders
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REMINDER_EMAIL_TO: ${{ secrets.REMINDER_EMAIL_TO }}
+          REMINDER_EMAIL_FROM: ${{ secrets.REMINDER_EMAIL_FROM }}
+        run: python3 check_and_remind.py
+
+      - name: Commit reminder state
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reminders/state.json
+          git commit -m "Update reminder state" || echo "Nothing to commit"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
