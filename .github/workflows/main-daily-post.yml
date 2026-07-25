@@ -39,8 +39,9 @@ jobs:
           TRACK="track${TRACK_NUM}.mp3.mp3"
           ffmpeg -y -loop 1 -i card.png -stream_loop -1 -i "$TRACK" -t 30 \
           -vf "scale=1080:1890,pad=1080:1920:0:15:color=black" \
-          -c:v libx264 -pix_fmt yuv420p -r 30 \
-          -c:a aac -b:a 128k -shortest \
+          -c:v libx264 -pix_fmt yuv420p -r 30 -crf 18 -preset slow \
+          -c:a aac -b:a 192k -ar 48000 \
+          -shortest \
           "videos/main-${ROW_ID}.mp4"
 
       - name: Commit rendered assets
