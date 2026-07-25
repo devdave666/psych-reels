@@ -38,6 +38,7 @@ jobs:
           TRACK_NUM=$(( (ROW_ID % 5) + 1 ))
           TRACK="track${TRACK_NUM}.mp3.mp3"
           ffmpeg -y -loop 1 -i card.png -stream_loop -1 -i "$TRACK" -t 30 \
+          -vf "scale=1080:1890,pad=1080:1920:0:15:color=black" \
           -c:v libx264 -pix_fmt yuv420p -r 30 \
           -c:a aac -b:a 128k -shortest \
           "videos/main-${ROW_ID}.mp4"
