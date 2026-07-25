@@ -59,18 +59,19 @@
   .hero {
     position: relative;
     width: 100%;
-    height: 46vh;
-    min-height: 300px;
-    max-height: 420px;
+    height: 52vh;
+    min-height: 340px;
+    max-height: 460px;
     overflow: hidden;
   }
   .hero img {
     width: 100%;
-    height: 100%;
+    height: 112%;
     object-fit: cover;
     object-position: 70% 30%;
     filter: grayscale(100%) contrast(1.05);
     display: block;
+    transition: opacity 0.5s ease;
   }
   .hero::after {
     content: "";
@@ -80,6 +81,35 @@
       rgba(10,10,10,0.15) 0%,
       rgba(10,10,10,0.55) 55%,
       rgba(10,10,10,1) 100%);
+  }
+  .hero-quote {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 96px;
+    z-index: 2;
+  }
+  .hero-quote p {
+    font-style: italic;
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1.4;
+    margin: 0 0 10px;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.7);
+  }
+  .hero-quote .hero-rule {
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    margin-bottom: 8px;
+  }
+  .hero-quote .hero-name {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
   }
 
   .wrap {
@@ -215,8 +245,13 @@
 </head>
 <body>
 
-  <div class="hero">
-    <img src="https://devdave666.github.io/psych-reels/backgrounds/marcus_aurelius.jpg" alt="">
+  <div class="hero" id="hero">
+    <img id="hero-img" src="https://devdave666.github.io/psych-reels/backgrounds/marcus_aurelius.jpg" alt="">
+    <div class="hero-quote reveal">
+      <p id="hero-quote-text">"You have power over your mind, not outside events."</p>
+      <div class="hero-rule"></div>
+      <div class="hero-name" id="hero-quote-name">Marcus Aurelius</div>
+    </div>
   </div>
 
   <div class="wrap">
@@ -250,6 +285,42 @@
       &copy; the_higher_being
     </footer>
   </div>
+
+  <script>
+    // A different real quote + matching statue each time someone visits,
+    // so the page shows an actual sample of the content instead of the
+    // same static image every time.
+    const FEATURED = [
+      { img: "marcus_aurelius", quote: "You have power over your mind, not outside events.", name: "Marcus Aurelius" },
+      { img: "epictetus", quote: "Men are disturbed not by things, but by the views which they take of things.", name: "Epictetus" },
+      { img: "seneca", quote: "We suffer more often in imagination than in reality.", name: "Seneca" },
+      { img: "nietzsche", quote: "That which does not kill us makes us stronger.", name: "Friedrich Nietzsche" },
+      { img: "plato", quote: "The unexamined life is not worth living.", name: "Plato" },
+      { img: "aristotle", quote: "The whole is more than the sum of its parts.", name: "Aristotle" },
+      { img: "kant", quote: "Two things fill the mind with ever new and increasing admiration and awe: the starry heavens above me and the moral law within me.", name: "Immanuel Kant" },
+      { img: "spinoza", quote: "All things excellent are as difficult as they are rare.", name: "Baruch Spinoza" },
+    ];
+
+    const pick = FEATURED[Math.floor(Math.random() * FEATURED.length)];
+    const heroImg = document.getElementById('hero-img');
+    heroImg.style.opacity = 0;
+    heroImg.onload = () => { heroImg.style.opacity = 1; };
+    heroImg.src = `https://devdave666.github.io/psych-reels/backgrounds/${pick.img}.jpg`;
+    document.getElementById('hero-quote-text').textContent = `"${pick.quote}"`;
+    document.getElementById('hero-quote-name').textContent = pick.name;
+
+    // Subtle parallax: the hero image drifts slower than the scroll,
+    // giving a little depth instead of sitting perfectly static.
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const hero = document.getElementById('hero');
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        if (y < hero.offsetHeight) {
+          heroImg.style.transform = `translateY(${y * 0.12}px)`;
+        }
+      }, { passive: true });
+    }
+  </script>
 
 </body>
 </html>
