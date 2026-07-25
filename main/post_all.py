@@ -11,6 +11,7 @@ THREADS_CHANNEL_ID = os.environ['BUFFER_THREADS_CHANNEL_ID']
 PINTEREST_CHANNEL_ID = os.environ['BUFFER_PINTEREST_CHANNEL_ID']
 PINTEREST_BOARD_ID = os.environ['BUFFER_PINTEREST_BOARD_ID']
 BASE_URL = "https://devdave666.github.io/psych-reels"
+LANDING_PAGE_URL = "https://thb.kit.com/ac3784a0f7"
 
 with open('_selected_id.txt') as f:
     row_id = f.read().strip()
@@ -24,7 +25,19 @@ if content_type == "quote":
 else:
     hashtags = "#psychology #philosophy"
 
+# Every 6th post, add a soft CTA to the social caption pointing at the free guide.
+# Not every post, so it doesn't read as spam, but frequent enough to actually convert.
+try:
+    _id_num = int(row_id)
+except ValueError:
+    _id_num = 0
+SOFT_CTA_DUE = (_id_num % 6 == 0)
+SOFT_CTA_LINE = "\n\nFree guide - 12 ancient practices modern psychology confirmed. Link in bio."
+
 caption = f"{text}\n\n{hashtags}"
+if SOFT_CTA_DUE:
+    caption += SOFT_CTA_LINE
+
 video_url = f"{BASE_URL}/videos/main-{row_id}.mp4"
 pin_url = f"{BASE_URL}/pins/main-{row_id}.png"
 
@@ -68,7 +81,7 @@ print(f"Instagram published: {publish['id']}")
 
 
 # --- Buffer: X, Threads, Pinterest ---
-def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_title=None):
+def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_title=None, dest_url=None):
     gql_parts = [
         f'text: "{text_content}"'.replace("\n", "\\n"),
         f'channelId: "{channel_id}"',
@@ -81,6 +94,8 @@ def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_tit
         meta = f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}"'
         if pin_title:
             meta += f', title: "{pin_title}"'
+        if dest_url:
+            meta += f', url: "{dest_url}"'
         meta += ' } }'
         gql_parts.append(meta)
     query = (
@@ -101,11 +116,11 @@ def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_tit
     return result["post"]["id"]
 
 
-def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=None, pin_title=None, retries=3):
+def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=None, pin_title=None, dest_url=None, retries=3):
     last_error = None
     for attempt in range(retries):
         try:
-            return buffer_post(channel_id, text_content, image_url, board_id, pin_title)
+            return buffer_post(channel_id, text_content, image_url, board_id, pin_title, dest_url)
         except Exception as e:
             last_error = e
             print(f"Attempt {attempt+1} failed: {e}, retrying in {(attempt+1)*8}s...")
@@ -124,6 +139,7 @@ print(f"Threads posted: {threads_id}")
 # Pinterest ranks on keywords in titles/descriptions, not hashtags (~1% of ranking).
 # So Pinterest gets its own SEO-optimized copy rather than reusing the social caption.
 import pinterest_seo
+import board_router
 
 with open('_selected_attribution.txt') as f:
     attribution = f.read()
@@ -132,15 +148,19 @@ with open('_selected_source.txt') as f:
 
 pin_title = pinterest_seo.build_title(text, attribution, content_type, row_id)
 pin_description = pinterest_seo.build_description(text, attribution, source, content_type, row_id)
+routed_board_id = board_router.route(attribution, content_type, text, row_id)
 
 pin_id = buffer_post_with_retry(
     PINTEREST_CHANNEL_ID,
     pin_description.replace('"', '\\"'),
     image_url=pin_url,
-    board_id=PINTEREST_BOARD_ID,
-    pin_title=pin_title.replace('"', '\\"')
+    board_id=routed_board_id,
+    pin_title=pin_title.replace('"', '\\"'),
+    dest_url=LANDING_PAGE_URL
 )
 print(f"Pinterest posted: {pin_id}")
 print(f"  title: {pin_title}")
+print(f"  board: {routed_board_id}")
+print(f"  destination: {LANDING_PAGE_URL}")
 
 print("ALL_PLATFORMS_SUCCESS")
