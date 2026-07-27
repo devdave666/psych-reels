@@ -84,6 +84,14 @@ publish = ig_request(f"{IG_USER_ID}/media_publish", {
 })
 print(f"Instagram published: {publish['id']}")
 
+# Mark that the primary platform succeeded, independent of whatever happens
+# with the secondary platforms below. update_state.py checks for this before
+# advancing the cursor - so a Buffer failure can never accidentally mark
+# unposted content as used, and an Instagram failure can never accidentally
+# advance past content Instagram itself never received.
+with open('_instagram_success.txt', 'w') as f:
+    f.write('true')
+
 # Fetch the real permalink so Pinterest can link directly to this exact post
 permalink_data = requests.get(
     f"https://graph.instagram.com/v23.0/{publish['id']}",
@@ -126,21 +134,61 @@ def buffer_post(channel_id, text, image_url=None, board_id=None, dest_url=None):
     return result["post"]["id"]
 
 caption_escaped = caption.replace('"', '\\"')
-x_id = buffer_post(X_CHANNEL_ID, caption_escaped)
-print(f"X posted: {x_id}")
 
-threads_id = buffer_post(THREADS_CHANNEL_ID, caption_escaped)
-print(f"Threads posted: {threads_id}")
+# X has a hard 280-char limit; editorial captions (first paragraph + CTA + hashtags)
+# regularly exceed this, unlike the short daily quotes/facts. Build a safe, shortened
+# version specifically for X rather than assuming the full caption always fits.
+X_LIMIT = 280
+if len(caption) <= X_LIMIT:
+    x_caption = caption
+else:
+    reserve = len(f"\n\n{hashtags}")
+    available = X_LIMIT - reserve - 1
+    trimmed = first_para[:available].rsplit(" ", 1)[0].rstrip(",.;: ") + "..."
+    x_caption = f"{trimmed}\n\n{hashtags}"
+    if len(x_caption) > X_LIMIT:
+        x_caption = x_caption[:X_LIMIT]
+print(f"X caption length: {len(x_caption)}")
 
-teaser_url = f"{BASE_URL}/row-{idx}-pinterest-teaser.png"
-pinterest_caption = f"{caption}\n\nFull story on Instagram: @the_higher_being"
-pin_id = buffer_post(
-    PINTEREST_CHANNEL_ID,
-    pinterest_caption.replace('"', '\\"'),
-    image_url=teaser_url,
-    board_id=PINTEREST_BOARD_ID,
-    dest_url=ig_permalink
-)
-print(f"Pinterest posted: {pin_id}")
+# Each platform attempted independently: one failing must never block the others,
+# and must never prevent the row from being marked used (Instagram, the primary
+# platform, already succeeded by this point).
+failures = []
+
+try:
+    x_id = buffer_post(X_CHANNEL_ID, x_caption.replace('"', '\\"'))
+    print(f"X posted: {x_id}")
+except Exception as e:
+    print(f"X FAILED (continuing anyway): {e}")
+    failures.append(f"X: {e}")
+
+try:
+    threads_id = buffer_post(THREADS_CHANNEL_ID, caption_escaped)
+    print(f"Threads posted: {threads_id}")
+except Exception as e:
+    print(f"Threads FAILED (continuing anyway): {e}")
+    failures.append(f"Threads: {e}")
+
+try:
+    teaser_url = f"{BASE_URL}/row-{idx}-pinterest-teaser.png"
+    pinterest_caption = f"{caption}\n\nFull story on Instagram: @the_higher_being"
+    pin_id = buffer_post(
+        PINTEREST_CHANNEL_ID,
+        pinterest_caption.replace('"', '\\"'),
+        image_url=teaser_url,
+        board_id=PINTEREST_BOARD_ID,
+        dest_url=ig_permalink
+    )
+    print(f"Pinterest posted: {pin_id}")
+except Exception as e:
+    print(f"Pinterest FAILED (continuing anyway): {e}")
+    failures.append(f"Pinterest: {e}")
+
+if failures:
+    print("ALL_PLATFORMS_PARTIAL_FAILURE: " + " | ".join(failures))
+    # Non-zero exit for visibility in the Actions log, but this happens only
+    # AFTER every platform was attempted, and the workflow marks state as
+    # used regardless (see workflow's if: always() on that step).
+    sys.exit(1)
 
 print("ALL_PLATFORMS_SUCCESS")

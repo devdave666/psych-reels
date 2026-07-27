@@ -79,6 +79,11 @@ publish = ig_request(f"{IG_USER_ID}/media_publish", {
 })
 print(f"Instagram published: {publish['id']}")
 
+# Mark that the primary platform succeeded, independent of the secondary
+# platforms below - update_state.py checks this before advancing the cursor.
+with open('_instagram_success.txt', 'w') as f:
+    f.write('true')
+
 
 # --- Buffer: X, Threads, Pinterest ---
 def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_title=None, dest_url=None):
@@ -130,37 +135,68 @@ def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=No
 
 caption_escaped = caption.replace('"', '\\"')
 
-x_id = buffer_post_with_retry(X_CHANNEL_ID, caption_escaped)
-print(f"X posted: {x_id}")
+# Safety net: even though no current entry exceeds X's 280-char limit, this
+# protects against any future longer content (e.g. a soft-CTA line pushing
+# a borderline-length quote over) without needing to notice it manually.
+X_LIMIT = 280
+if len(caption) <= X_LIMIT:
+    x_caption = caption
+else:
+    reserve = len(f"\n\n{hashtags}")
+    available = X_LIMIT - reserve - 1
+    trimmed = text[:available].rsplit(" ", 1)[0].rstrip(",.;: ") + "..."
+    x_caption = f"{trimmed}\n\n{hashtags}"
+    if len(x_caption) > X_LIMIT:
+        x_caption = x_caption[:X_LIMIT]
 
-threads_id = buffer_post_with_retry(THREADS_CHANNEL_ID, caption_escaped)
-print(f"Threads posted: {threads_id}")
+failures = []
 
-# Pinterest ranks on keywords in titles/descriptions, not hashtags (~1% of ranking).
-# So Pinterest gets its own SEO-optimized copy rather than reusing the social caption.
-import pinterest_seo
-import board_router
+try:
+    x_id = buffer_post_with_retry(X_CHANNEL_ID, x_caption.replace('"', '\\"'))
+    print(f"X posted: {x_id}")
+except Exception as e:
+    print(f"X FAILED (continuing anyway): {e}")
+    failures.append(f"X: {e}")
 
-with open('_selected_attribution.txt') as f:
-    attribution = f.read()
-with open('_selected_source.txt') as f:
-    source = f.read()
+try:
+    threads_id = buffer_post_with_retry(THREADS_CHANNEL_ID, caption_escaped)
+    print(f"Threads posted: {threads_id}")
+except Exception as e:
+    print(f"Threads FAILED (continuing anyway): {e}")
+    failures.append(f"Threads: {e}")
 
-pin_title = pinterest_seo.build_title(text, attribution, content_type, row_id)
-pin_description = pinterest_seo.build_description(text, attribution, source, content_type, row_id)
-routed_board_id = board_router.route(attribution, content_type, text, row_id)
+try:
+    # Pinterest ranks on keywords in titles/descriptions, not hashtags (~1% of ranking).
+    # So Pinterest gets its own SEO-optimized copy rather than reusing the social caption.
+    import pinterest_seo
+    import board_router
 
-pin_id = buffer_post_with_retry(
-    PINTEREST_CHANNEL_ID,
-    pin_description.replace('"', '\\"'),
-    image_url=pin_url,
-    board_id=routed_board_id,
-    pin_title=pin_title.replace('"', '\\"'),
-    dest_url=LANDING_PAGE_URL
-)
-print(f"Pinterest posted: {pin_id}")
-print(f"  title: {pin_title}")
-print(f"  board: {routed_board_id}")
-print(f"  destination: {LANDING_PAGE_URL}")
+    with open('_selected_attribution.txt') as f:
+        attribution = f.read()
+    with open('_selected_source.txt') as f:
+        source = f.read()
+
+    pin_title = pinterest_seo.build_title(text, attribution, content_type, row_id)
+    pin_description = pinterest_seo.build_description(text, attribution, source, content_type, row_id)
+    routed_board_id = board_router.route(attribution, content_type, text, row_id)
+
+    pin_id = buffer_post_with_retry(
+        PINTEREST_CHANNEL_ID,
+        pin_description.replace('"', '\\"'),
+        image_url=pin_url,
+        board_id=routed_board_id,
+        pin_title=pin_title.replace('"', '\\"'),
+        dest_url=LANDING_PAGE_URL
+    )
+    print(f"Pinterest posted: {pin_id}")
+    print(f"  title: {pin_title}")
+    print(f"  board: {routed_board_id}")
+except Exception as e:
+    print(f"Pinterest FAILED (continuing anyway): {e}")
+    failures.append(f"Pinterest: {e}")
+
+if failures:
+    print("ALL_PLATFORMS_PARTIAL_FAILURE: " + " | ".join(failures))
+    sys.exit(1)
 
 print("ALL_PLATFORMS_SUCCESS")

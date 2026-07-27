@@ -62,6 +62,8 @@ jobs:
 
       - name: Post to all platforms
         working-directory: main
+        continue-on-error: true
+        id: post_platforms
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
@@ -86,6 +88,11 @@ jobs:
             echo "Push failed, retrying ($i)..."
             sleep 5
           done
+
+      - name: Flag if any platform failed (informational, does not fail the job)
+        if: steps.post_platforms.outcome == 'failure'
+        run: |
+          echo "::warning::One or more platforms failed on this run - Instagram succeeded (since we reached this point) but check the 'Post to all platforms' step log for which secondary platform(s) failed and whether they need manual completion."
 
       - name: Check token expiry and content levels, send reminders if needed
         if: always()

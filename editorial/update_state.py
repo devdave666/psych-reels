@@ -1,5 +1,15 @@
 import json
+import os
+import sys
 from datetime import date
+
+# Only advance state if Instagram (the primary platform) actually succeeded.
+# This marker is written by post_all.py immediately after Instagram publishes,
+# before any secondary-platform (X/Threads/Pinterest) attempts - so a failure
+# there never advances state, while a secondary-platform failure never blocks it.
+if not os.path.exists('_instagram_success.txt'):
+    print("Instagram did not succeed on this run - leaving content/state untouched so it retries next time.")
+    sys.exit(0)
 
 with open('_selected_index.txt') as f:
     idx = int(f.read().strip())
