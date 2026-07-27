@@ -1,0 +1,38 @@
+name: Missed Post Check
+on:
+  schedule:
+    - cron: '0 17 * * *'  # 17:00 UTC, ~4 hours after the normal 13:00 UTC schedule
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if today's post went out, alert + note if not
+        id: check
+        working-directory: reminders
+        env:
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          REMINDER_EMAIL_TO: ${{ secrets.REMINDER_EMAIL_TO }}
+          REMINDER_EMAIL_FROM: ${{ secrets.REMINDER_EMAIL_FROM }}
+        run: |
+          python3 check_missed_post.py | tee output.txt
+          if grep -q "MISSED" output.txt; then
+            echo "missed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "missed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Trigger recovery run if today was missed
+        if: steps.check.outputs.missed == 'true'
+        run: |
+          curl -s -X POST "https://api.github.com/repos/${{ github.repository }}/actions/workflows/main-daily-post.yml/dispatches" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            -d '{"ref": "main"}'
