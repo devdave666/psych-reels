@@ -34,12 +34,8 @@ def get_background(attribution, row_id):
     key = attribution.strip().lower()
     if key in IMAGE_MAP:
         return IMAGE_MAP[key]
-    # Psychology facts: alternate between the two abstract images
-    try:
-        n = int(row_id)
-    except ValueError:
-        n = 0
-    return "psychology1" if n % 2 == 0 else "psychology2"
+    # Psychology facts: single fixed background (psychology2, the corrected one)
+    return "psychology2"
 
 if __name__ == "__main__":
     from PIL import Image, ImageDraw, ImageFont
