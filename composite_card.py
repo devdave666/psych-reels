@@ -91,9 +91,16 @@ if __name__ == "__main__":
     y += int(h * 0.021)
     draw.text((x_margin, y), source, font=source_font, fill=(190, 190, 190))
 
-    y_handle = h - int(h * 0.052)
-    draw.text((x_margin, y_handle), "@the_higher_being", font=source_font, fill=(255, 255, 255))
-    handle_bbox = draw.textbbox((x_margin, y_handle), "@the_higher_being", font=source_font)
+    GOLD = (222, 178, 110)
+    handle_font = ImageFont.truetype("fonts/IBMPlexSerif-BoldItalic.ttf", int(h * 0.021))
+    handle_text = "@the_higher_being"
+    letter_spacing = int(h * 0.0022)
+    y_handle = y + line_height
+    x_cursor = x_margin
+    for ch in handle_text:
+        draw.text((x_cursor, y_handle), ch, font=handle_font, fill=GOLD)
+        ch_bbox = draw.textbbox((0, 0), ch, font=handle_font)
+        x_cursor += (ch_bbox[2] - ch_bbox[0]) + letter_spacing
 
     img.save("card.png")
     print(f"Used background: {bg_name}.jpg, wrapped to {len(lines)} lines")
