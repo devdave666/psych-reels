@@ -51,27 +51,47 @@ def ig_request(endpoint, params):
 
 
 # --- Instagram Reel ---
-container = ig_request(f"{IG_USER_ID}/media", {
-    "media_type": "REELS",
-    "video_url": video_url,
-    "caption": caption,
-    "access_token": IG_TOKEN
-})
-creation_id = container["id"]
-print(f"Instagram container created: {creation_id}")
+# Container creation + processing occasionally errors transiently on
+# Instagram's own side (confirmed August 6: the exact same video file
+# succeeded immediately on a fresh retry with no changes at all). So the
+# whole create+poll cycle gets a few attempts with a fresh container each
+# time, rather than giving up after the first failure.
+def create_and_poll_instagram_container(max_attempts=3):
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            container = ig_request(f"{IG_USER_ID}/media", {
+                "media_type": "REELS",
+                "video_url": video_url,
+                "caption": caption,
+                "access_token": IG_TOKEN
+            })
+            creation_id = container["id"]
+            print(f"Instagram container created (attempt {attempt}): {creation_id}")
 
-for _ in range(20):
-    time.sleep(6)
-    status = requests.get(
-        f"https://graph.instagram.com/v23.0/{creation_id}",
-        params={"fields": "status_code", "access_token": IG_TOKEN}
-    ).json()
-    if status.get("status_code") == "FINISHED":
-        break
-    if status.get("status_code") == "ERROR":
-        raise Exception(f"Instagram container errored: {status}")
-else:
-    raise Exception("Instagram container never finished processing")
+            for _ in range(20):
+                time.sleep(6)
+                status = requests.get(
+                    f"https://graph.instagram.com/v23.0/{creation_id}",
+                    params={"fields": "status_code", "access_token": IG_TOKEN}
+                ).json()
+                if status.get("status_code") == "FINISHED":
+                    return creation_id
+                if status.get("status_code") == "ERROR":
+                    raise Exception(f"Instagram container errored: {status}")
+            else:
+                raise Exception("Instagram container never finished processing")
+        except Exception as e:
+            last_error = e
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt < max_attempts:
+                wait = 20 * attempt
+                print(f"Retrying with a fresh container in {wait}s...")
+                time.sleep(wait)
+    raise last_error
+
+
+creation_id = create_and_poll_instagram_container()
 
 publish = ig_request(f"{IG_USER_ID}/media_publish", {
     "creation_id": creation_id,

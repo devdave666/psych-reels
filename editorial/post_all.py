@@ -41,42 +41,59 @@ def ig_request(endpoint, params):
     return data
 
 # --- Instagram ---
-if total_slides == 1:
-    container = ig_request(f"{IG_USER_ID}/media", {
-        "image_url": slide_urls[0],
-        "caption": caption,
-        "access_token": IG_TOKEN
-    })
-    creation_id = container["id"]
-else:
-    child_ids = []
-    for url in slide_urls:
-        child = ig_request(f"{IG_USER_ID}/media", {
-            "image_url": url,
-            "is_carousel_item": "true",
-            "access_token": IG_TOKEN
-        })
-        child_ids.append(child["id"])
-        time.sleep(2)
-    container = ig_request(f"{IG_USER_ID}/media", {
-        "media_type": "CAROUSEL",
-        "children": ",".join(child_ids),
-        "caption": caption,
-        "access_token": IG_TOKEN
-    })
-    creation_id = container["id"]
+def create_and_poll_instagram_container(max_attempts=3):
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            if total_slides == 1:
+                container = ig_request(f"{IG_USER_ID}/media", {
+                    "image_url": slide_urls[0],
+                    "caption": caption,
+                    "access_token": IG_TOKEN
+                })
+                creation_id = container["id"]
+            else:
+                child_ids = []
+                for url in slide_urls:
+                    child = ig_request(f"{IG_USER_ID}/media", {
+                        "image_url": url,
+                        "is_carousel_item": "true",
+                        "access_token": IG_TOKEN
+                    })
+                    child_ids.append(child["id"])
+                    time.sleep(2)
+                container = ig_request(f"{IG_USER_ID}/media", {
+                    "media_type": "CAROUSEL",
+                    "children": ",".join(child_ids),
+                    "caption": caption,
+                    "access_token": IG_TOKEN
+                })
+                creation_id = container["id"]
 
-# Poll for status
-for _ in range(15):
-    time.sleep(5)
-    status = requests.get(
-        f"https://graph.instagram.com/v23.0/{creation_id}",
-        params={"fields": "status_code", "access_token": IG_TOKEN}
-    ).json()
-    if status.get("status_code") == "FINISHED":
-        break
-else:
-    raise Exception("Instagram container never finished processing")
+            print(f"Instagram container created (attempt {attempt}): {creation_id}")
+            for _ in range(15):
+                time.sleep(5)
+                status = requests.get(
+                    f"https://graph.instagram.com/v23.0/{creation_id}",
+                    params={"fields": "status_code", "access_token": IG_TOKEN}
+                ).json()
+                if status.get("status_code") == "FINISHED":
+                    return creation_id
+                if status.get("status_code") == "ERROR":
+                    raise Exception(f"Instagram container errored: {status}")
+            else:
+                raise Exception("Instagram container never finished processing")
+        except Exception as e:
+            last_error = e
+            print(f"Attempt {attempt} failed: {e}")
+            if attempt < max_attempts:
+                wait = 20 * attempt
+                print(f"Retrying with a fresh container in {wait}s...")
+                time.sleep(wait)
+    raise last_error
+
+
+creation_id = create_and_poll_instagram_container()
 
 publish = ig_request(f"{IG_USER_ID}/media_publish", {
     "creation_id": creation_id,

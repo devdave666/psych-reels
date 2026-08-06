@@ -82,6 +82,10 @@ jobs:
         working-directory: main
         run: |
           git add content.json state.json
+          if git diff --cached --quiet; then
+            echo "Nothing to commit - Instagram likely didn't succeed on this run, so state was correctly left unchanged. This is not a failure."
+            exit 0
+          fi
           git commit -m "Mark main content used: row $(cat _selected_id.txt)"
           for i in 1 2 3 4 5; do
             git pull --rebase origin main && git push && break

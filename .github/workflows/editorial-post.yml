@@ -62,6 +62,10 @@ jobs:
         working-directory: editorial
         run: |
           git add content.json state.json
+          if git diff --cached --quiet; then
+            echo "Nothing to commit - Instagram likely didn't succeed on this run, so state was correctly left unchanged. This is not a failure."
+            exit 0
+          fi
           git commit -m "Mark editorial content used: $(cat _selected_title.txt)"
           for i in 1 2 3 4 5; do
             git pull --rebase origin main && git push && break
