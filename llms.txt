@@ -1,0 +1,232 @@
+# llms.txt — Context for AI Agents
+
+This file exists so any AI assistant (Claude or otherwise) picking up this
+project — in a new chat, a different tool, or a different model — can get
+oriented quickly without the human having to re-explain everything from
+scratch. If you are an AI reading this: read this whole file before doing
+anything. If you are Dev reading this: see HUMAN_QUICKSTART.md in this same
+folder for the short version to paste into a new chat.
+
+Last updated: 2026-08-06
+
+## What this project is
+
+An automated content pipeline for the Instagram/X/Threads/Pinterest account
+`@the_higher_being` — daily philosophy quotes and psychology facts, plus a
+twice-weekly long-form "essay" series pairing philosophers' claims with real
+modern research. Everything runs unattended via GitHub Actions. There is no
+Make.com, no manual posting step, no human in the loop for routine operation.
+
+The account is genuinely early-stage (near-zero followers as of this
+writing). The whole point of this build is consistency the human couldn't
+sustain manually, feeding into a funnel: social posts -> a self-hosted
+link-in-bio page -> a free lead-magnet PDF -> an email list (Kit), which is
+the actual long-term asset being built.
+
+## Repo structure
+
+```
+main/               Daily quote/fact pipeline (163+ entries)
+  content.json      The content library: id, type (quote/fact), text,
+                     attribution, source, used, date_used
+  state.json        {"cursor": N} - index into content.json for "what's next"
+  select_next.py    Picks the next unused entry from cursor, wraps around
+  post_all.py       Posts to Instagram (video) + X/Threads/Pinterest (Buffer)
+  update_state.py   Marks entry used + advances cursor (gated on Instagram
+                     actually succeeding - see GOTCHAS below)
+  pinterest_seo.py  Builds keyword-rich Pinterest titles/descriptions
+                     (Pinterest ranks on these, NOT hashtags - ~1% weight)
+  board_router.py   Routes each pin to the best-matching one of 9 Pinterest
+                     boards based on philosopher/topic
+
+editorial/          Twice-weekly long-form carousel pipeline (52+ entries)
+  content.json      id, title, label, body, cta, hashtags, used, date_used,
+                     pinterest_hook
+  render_essay.py   Multi-slide carousel renderer, auto-paginates, CTA gets
+                     its own dedicated final slide (not squeezed onto body)
+  render_pinterest_teaser.py  Pinterest gets a DELIBERATELY INCOMPLETE teaser
+                     image (cuts off mid-scene) with the pin's destination
+                     link set to the actual Instagram post - drives
+                     click-through rather than duplicating content
+  post_all.py       Same platform-posting pattern as main/
+
+reminders/          Self-monitoring, emails devdave666@gmail.com when:
+  check_and_remind.py   - Instagram token nearing 60-day expiry (5-day warn)
+                         - either content pool drops below 10 unused entries
+                           (includes a ready-to-paste prompt for topping up)
+  check_missed_post.py  Runs 4hrs after normal schedule; if NO post went out
+                         today, auto-triggers a recovery run AND emails you
+  send_email.py     Generic mailer, Gmail SMTP + app password
+
+links/              Self-hosted link-in-bio page (replaces Linktree)
+  index.html        Single-file HTML/CSS/JS. Deployed via Vercel, connected
+                     to this GitHub repo (auto-deploys on push to this
+                     folder specifically - Root Directory is set to `links`
+                     in Vercel's project settings, NOT the repo root)
+
+composite_card.py   Shared image renderer for main/ pipeline's statue+quote
+                     cards. IMAGE_MAP maps philosopher names to background
+                     files in backgrounds/. Non-philosopher facts use a
+                     single fixed "psychology2.jpg" background.
+
+backgrounds/         ~28 statue/abstract images (1080x1344, dark aesthetic)
+fonts/                IBM Plex Serif (Regular, Bold, BoldItalic) - the only
+                      typeface used anywhere in this project
+pins/, videos/        Generated output, committed by the workflows themselves
+
+.github/workflows/
+  main-daily-post.yml       Daily, 13:00 UTC nominal (GitHub's scheduler is
+                            unreliable - see GOTCHAS)
+  editorial-post.yml        Mon/Thu
+  missed-post-check.yml     Daily, 17:00 UTC - the self-healing safety net
+  generate-content.yml      LEGACY - was Make.com's dispatch target before
+                            full migration off Make. Should be dormant/unused
+                            now but has not been deleted. If you see it
+                            firing, something is wrong (Make should be fully
+                            deleted, not just deactivated - deactivating
+                            alone was proven unreliable once already).
+```
+
+## External services and how access works
+
+**GitHub Secrets** (the automated pipelines' only credential source):
+`INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_USER_ID`, `BUFFER_API_KEY`,
+`BUFFER_X_CHANNEL_ID`, `BUFFER_THREADS_CHANNEL_ID`,
+`BUFFER_PINTEREST_CHANNEL_ID`, `BUFFER_PINTEREST_BOARD_ID`,
+`GMAIL_APP_PASSWORD`, `REMINDER_EMAIL_TO`, `REMINDER_EMAIL_FROM`.
+These are write-only once set - nobody (including Claude) can read them back
+out. The automated workflows already have everything they need; you do not
+need any of this to just let the pipeline keep running.
+
+**Instagram**: direct Graph API calls (graph.instagram.com), no
+third-party tool. Token expires ~60 days, the reminders/ system emails a
+warning starting 5 days out.
+
+**Buffer**: direct GraphQL API (api.buffer.com) for X, Threads, Pinterest.
+NOT using Buffer's official app connectors - raw HTTP calls with a personal
+API key, built this way early on due to feature limitations in Buffer's own
+UI flow for this use case.
+
+**Vercel**: hosts the links/ page, connected via GitHub integration (auto
+deploy on push). Also has an MCP connector available to Claude, but that
+MCP tool (`deploy_to_vercel`) has a hard, confirmed limitation: it can only
+successfully create ONE deployment per project - every subsequent deploy
+through that specific tool gets a 403 permission error, even as Owner, even
+with Deployment Protection off. The GitHub-integration auto-deploy route
+does not have this limitation and is the reliable path for ongoing updates.
+
+**Make.com**: intentionally NOT used anywhere anymore. It caused enough
+real incidents (silently-still-active scenario reposting stale content
+daily for an unknown period, error-handling that swallowed failures, the
+2-free-scenario cap making testing painful) that it was fully deleted, not
+just deactivated. Do not reintroduce it without a very good reason.
+
+**Image generation**: Black Forest Labs direct API (api.bfl.ai), not
+Replicate. Endpoint is `flux-pro-1.1` for from-scratch generation (needs
+explicit width/height in pixels - its `aspect_ratio` param is unreliable
+and silently falls back to 1024x768 default) or `flux-2-pro` for
+reference-image-guided editing (`input_image` param accepts a URL directly).
+Reference-image editing was what actually solved a stuck compositional
+problem after multiple pure-text-prompt attempts failed - worth remembering
+as a technique, not just a one-off fix.
+
+**Kit** (email/lead magnet): `https://thb.kit.com/ac3784a0f7` is the live
+landing page for the free guide PDF ("The Evidence-Based Stoic"). No API
+integration - this is just a link target, not something Claude posts to
+programmatically.
+
+## What a NEW AI session needs from the human to actually operate this
+
+The automated pipelines need **nothing** - they already run via GitHub
+Secrets. A new AI session only needs credentials if the human wants it to
+do things beyond what's automated: manual/one-off posting, debugging a live
+incident, adding content that requires direct API calls, extending the
+pipeline, etc.
+
+MCP-connected tools (Buffer, Make if reconnected, Vercel, Gmail, Notion,
+Canva, etc.) persist at the Claude account level - a new chat should already
+have these available without the human doing anything, IF the human is on
+the same Claude account. Check the tool list before assuming you don't have
+something.
+
+Raw API tokens shared as plain text earlier in conversation (Instagram
+access token, Buffer personal API key, GitHub PAT, BFL key, Gmail app
+password) are NOT automatically available in a new chat - they only exist
+in that conversation's own context. If you need one and don't have it,
+ask the human directly rather than guessing or trying to extract it from
+GitHub Secrets (which is write-only and will not work).
+
+A GitHub PAT with repo write access is the single most useful thing to get
+early, since almost everything in this project is "edit a file, commit,
+push" - the workflows pick it up from there.
+
+## Hard-won lessons (read before repeating these mistakes)
+
+- **GitHub Actions' `schedule:` trigger is genuinely unreliable** on the
+  free tier - it can fire hours late, or (rarely) not fire at all. Build
+  around this (see missed-post-check.yml) rather than trusting it.
+- **Instagram's container processing can fail transiently.** A fresh retry
+  of the exact same unmodified file has resolved this every time it's been
+  observed. Both post_all.py scripts now auto-retry 3x before giving up.
+- **A failing secondary platform (X/Threads/Pinterest) must never block
+  the others or prevent the state update.** Each platform call is wrapped
+  independently. State only advances if Instagram (the primary platform)
+  specifically succeeded - gated on an explicit `_instagram_success.txt`
+  marker file, not on the overall step's exit code.
+- **X has a hard 280-character limit.** Editorial captions (longer intro
+  paragraphs + CTA + hashtags) can exceed this even when the main daily
+  quotes never do. Both pipelines now build a separately-truncated X
+  caption rather than assuming the main caption always fits.
+- **When Claude tests and the human approves a change, ACTUALLY COMMIT
+  AND PUSH IT.** This has already gone wrong once (a handle-styling fix
+  was tested, approved, shown to the human as "done" - and never actually
+  pushed, so it silently didn't apply to a week of live posts before
+  anyone noticed). Verify against `git log` or the raw GitHub file after
+  every "fix", don't trust local state alone.
+- **Composition/scale problems in generated images are much better solved
+  by passing a known-good image as a reference** (flux-2-pro's `input_image`)
+  than by iterating on text-only prompts. But be precise about what you
+  want preserved (scale/framing/lighting) vs. changed (subject identity) -
+  an early attempt preserved way more of the reference's actual identity
+  than intended, producing something that just looked like the reference
+  image with a texture change instead of a genuinely distinct subject.
+- **Don't assume a background task like `deploy_to_vercel` can be called
+  repeatedly.** It can't, past the first call per project. Prefer the
+  GitHub-integration auto-deploy path for anything that will need updating.
+- **The old Make scenario was "deactivated" once and it didn't hold** -
+  it silently kept running and duplicate-posting for an unknown period.
+  It has since been fully deleted. If anything resembling Make.com
+  automation reappears in this project's behavior, investigate immediately
+  rather than assuming it's been handled.
+- **Copyright/quote authenticity matters here specifically.** This account's
+  whole differentiator is evidence-based rigor (explicitly stated in the
+  lead magnet PDF). Verify philosopher quotes are real and correctly
+  attributed before adding them - several widely-circulated ones are fake.
+  Same bar applies to psychology claims: state evidence strength honestly,
+  don't oversell popular claims that have weak support.
+
+## Current experimental work
+
+Branch `feature/kinetic-tts` (NOT merged to main, main is untouched and
+safe): building word-synced kinetic text animation using Kokoro-82M
+(free, Apache 2.0, CPU-capable TTS) + WhisperX (word-level forced alignment)
+to replace the current static text cards with word-by-word reveal timed to
+narration. As of last update: TTS generation works, voice selection is
+still being tuned (the human wants more "authority/sage" quality and less
+robotic monotone delivery than Kokoro's default prosody gives), timing/
+alignment step not yet built. Do not merge anything from this branch to
+main without the human explicitly confirming it's ready.
+
+## Tone/brand notes worth preserving
+
+Dark background (#0A0A0A-ish), gold accent (#B8862E / brighter #DEB26E for
+small text needing more visibility - the brand gold reads too dark at small
+sizes), IBM Plex Serif exclusively. Bio line: "Ancient intuition. Modern
+proof." CTAs across the editorial pipeline are deliberately low-stakes
+invitations ("comment one word") rather than anything asking someone to
+publicly expose a vulnerability - this was a deliberate correction from an
+earlier, worse CTA style. The human has explicitly declined content that
+overclaims pop-psychology/self-diagnosis framing (e.g. "if X bothers you,
+you might have OCD/ADHD") even when it would likely perform well, because
+it contradicts the account's evidence-based positioning - respect this if
+asked for similar content again.
