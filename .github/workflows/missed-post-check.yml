@@ -11,28 +11,19 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check if today's post went out, alert + note if not
-        id: check
+      - name: Install dependencies
+        run: pip3 install --break-system-packages requests
+
+      - name: Check if today's post went out; if not, trigger recovery and verify it actually worked before emailing
         working-directory: reminders
         env:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           REMINDER_EMAIL_TO: ${{ secrets.REMINDER_EMAIL_TO }}
           REMINDER_EMAIL_FROM: ${{ secrets.REMINDER_EMAIL_FROM }}
-        run: |
-          python3 check_missed_post.py | tee output.txt
-          if grep -q "MISSED" output.txt; then
-            echo "missed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "missed=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Trigger recovery run if today was missed
-        if: steps.check.outputs.missed == 'true'
-        run: |
-          curl -s -X POST "https://api.github.com/repos/${{ github.repository }}/actions/workflows/main-daily-post.yml/dispatches" \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            -d '{"ref": "main"}'
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python3 check_missed_post.py

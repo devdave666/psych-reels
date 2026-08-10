@@ -75,5 +75,10 @@ jobs:
 
       - name: Flag if any platform failed (informational, does not fail the job)
         if: steps.post_platforms.outcome == 'failure'
+        working-directory: editorial
         run: |
-          echo "::warning::One or more platforms failed on this run - Instagram succeeded (since we reached this point) but check the 'Post to all platforms' step log for which secondary platform(s) failed and whether they need manual completion."
+          if [ -f "_instagram_success.txt" ]; then
+            echo "::warning::Instagram succeeded, but a secondary platform (X/Threads/Pinterest) failed on this run. Content WAS marked used. Check the 'Post to all platforms' step log for which platform failed and whether it needs manual completion."
+          else
+            echo "::warning::Instagram itself failed on this run (checked up to 3 times). Content was correctly left unmarked and will retry on the next scheduled run. Check the 'Post to all platforms' step log for the actual Instagram error."
+          fi
