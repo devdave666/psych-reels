@@ -198,6 +198,21 @@ push" - the workflows pick it up from there.
   It has since been fully deleted. If anything resembling Make.com
   automation reappears in this project's behavior, investigate immediately
   rather than assuming it's been handled.
+- **`continue-on-error: true` hides failures from the GitHub UI at a
+  glance** - the step shows green even when the underlying script failed,
+  by design (that's the point of continue-on-error). This means you cannot
+  tell from the Actions tab's checkmarks alone whether a run actually
+  posted anything; you have to check content.json's date_used or the raw
+  logs. Discovered 2026-08-10 when Instagram failed 3 consecutive attempts
+  (not just once) and every single step still showed "success."
+- **Don't send a "recovered" email before verifying the recovery actually
+  worked.** check_missed_post.py used to fire the "Recovered" email
+  immediately after triggering a recovery dispatch, without checking
+  whether that dispatch's run actually succeeded. On 2026-08-10 it sent
+  "Recovered" while the auto-triggered recovery run had also failed
+  (Instagram was down longer than the 3-attempt retry window). Fixed to
+  actually poll the triggered run to completion and report its real
+  outcome before emailing anything.
 - **Copyright/quote authenticity matters here specifically.** This account's
   whole differentiator is evidence-based rigor (explicitly stated in the
   lead magnet PDF). Verify philosopher quotes are real and correctly
