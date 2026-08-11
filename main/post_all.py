@@ -69,7 +69,14 @@ def create_and_poll_instagram_container(max_attempts=3):
             creation_id = container["id"]
             print(f"Instagram container created (attempt {attempt}): {creation_id}")
 
-            for _ in range(20):
+            # 50 polls x 6s = 300s (5 min) per attempt. Increased from 120s
+            # after 2026-08-11: a manual retry finished in ~40s right after
+            # 3 automated attempts all hit "never finished processing"
+            # (a timeout, not an actual error) - the processing itself
+            # just needed more time than we were giving it, not a fresh
+            # container. Patience on the SAME container is likely more
+            # effective than repeatedly starting new ones.
+            for _ in range(50):
                 time.sleep(6)
                 status = requests.get(
                     f"https://graph.instagram.com/v23.0/{creation_id}",

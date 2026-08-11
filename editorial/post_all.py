@@ -71,8 +71,12 @@ def create_and_poll_instagram_container(max_attempts=3):
                 creation_id = container["id"]
 
             print(f"Instagram container created (attempt {attempt}): {creation_id}")
-            for _ in range(15):
-                time.sleep(5)
+            # 50 polls x 6s = 300s (5 min) per attempt - increased 2026-08-11,
+            # see main/post_all.py for the reasoning (timeout, not error, was
+            # the actual failure mode observed - needed more patience, not
+            # more fresh containers).
+            for _ in range(50):
+                time.sleep(6)
                 status = requests.get(
                     f"https://graph.instagram.com/v23.0/{creation_id}",
                     params={"fields": "status_code", "access_token": IG_TOKEN}
