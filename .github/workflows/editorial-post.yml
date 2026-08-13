@@ -30,12 +30,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add output/
-          git commit -m "Editorial content render: $(cat _selected_title.txt)"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push && break
-            echo "Push failed, retrying ($i)..."
-            sleep 5
-          done
+          if git diff --cached --quiet; then
+            echo "Nothing to commit - render output identical to what's already committed (this entry was rendered before but never successfully posted, e.g. Instagram failed on a prior run). Continuing to the posting step so it can retry."
+          else
+            git commit -m "Editorial content render: $(cat _selected_title.txt)"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push failed, retrying ($i)..."
+              sleep 5
+            done
+          fi
 
       - name: Wait for GitHub Pages deployment
         run: sleep 90

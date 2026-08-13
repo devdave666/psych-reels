@@ -50,12 +50,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           ROW_ID=$(cat main/_selected_id.txt)
           git add "pins/main-${ROW_ID}.png" "videos/main-${ROW_ID}.mp4"
-          git commit -m "Main content render: row ${ROW_ID}"
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main && git push && break
-            echo "Push failed, retrying ($i)..."
-            sleep 5
-          done
+          if git diff --cached --quiet; then
+            echo "Nothing to commit - render output identical to what's already committed (this entry was rendered before but never successfully posted, e.g. Instagram failed on a prior run). Continuing to the posting step so it can retry."
+          else
+            git commit -m "Main content render: row ${ROW_ID}"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push failed, retrying ($i)..."
+              sleep 5
+            done
+          fi
 
       - name: Wait for GitHub Pages deployment
         run: sleep 90
