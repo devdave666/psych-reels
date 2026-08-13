@@ -7,7 +7,7 @@ scratch. If you are an AI reading this: read this whole file before doing
 anything. If you are Dev reading this: see HUMAN_QUICKSTART.md in this same
 folder for the short version to paste into a new chat.
 
-Last updated: 2026-08-06
+Last updated: 2026-08-13
 
 ## What this project is
 
@@ -205,6 +205,22 @@ push" - the workflows pick it up from there.
   posted anything; you have to check content.json's date_used or the raw
   logs. Discovered 2026-08-10 when Instagram failed 3 consecutive attempts
   (not just once) and every single step still showed "success."
+- **A "commit rendered output" step with no guard for a no-op render can
+  permanently deadlock a pipeline.** The "Commit state update" step already
+  had an `if git diff --cached --quiet; then ... exit 0` guard for the case
+  where Instagram failed and state was correctly left unchanged - but the
+  earlier "Commit rendered images/assets" step didn't. When Instagram fails
+  after a successful render+commit, the next scheduled run re-selects and
+  re-renders the *same* entry (state never advanced), producing byte-identical
+  output with nothing new to commit. Under `bash -e` that `git commit` then
+  fails outright, killing the job before it ever reaches the posting step
+  again - a permanent loop that only manual intervention breaks. This is
+  exactly what happened to editorial: stuck from 2026-08-06 (Instagram
+  fetch-timing failure) through 2026-08-13 (three straight hard failures at
+  the commit step) until fixed. Both `main-daily-post.yml` and
+  `editorial-post.yml` now guard the render-commit step the same way the
+  state-commit step already was. If a similarly-shaped commit step is added
+  anywhere in this project, give it the same guard from the start.
 - **Don't send a "recovered" email before verifying the recovery actually
   worked.** check_missed_post.py used to fire the "Recovered" email
   immediately after triggering a recovery dispatch, without checking
