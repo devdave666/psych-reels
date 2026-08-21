@@ -37,19 +37,25 @@ jobs:
           ROW_ID=$(cat main/_selected_id.txt)
           ffmpeg -y -loop 1 -i hook_content.png -loop 1 -i hook_strip.png \
             -stream_loop -1 -i hook_reveal_track.mp3 -t 30 \
-            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=3.0:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
+            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=10.0:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
             -map "[v]" -map 2:a \
             -c:v libx264 -pix_fmt yuv420p -r 30 -crf 18 -preset slow \
             -c:a aac -b:a 192k -ar 48000 \
             -shortest \
             "videos/hook-${ROW_ID}.mp4"
 
-      - name: Commit rendered video
+      - name: Extract fully-lit still frame for Pinterest
+        run: |
+          mkdir -p pins
+          ROW_ID=$(cat main/_selected_id.txt)
+          ffmpeg -y -ss 11 -i "videos/hook-${ROW_ID}.mp4" -frames:v 1 "pins/hook-${ROW_ID}.png"
+
+      - name: Commit rendered assets
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           ROW_ID=$(cat main/_selected_id.txt)
-          git add "videos/hook-${ROW_ID}.mp4"
+          git add "videos/hook-${ROW_ID}.mp4" "pins/hook-${ROW_ID}.png"
           if git diff --cached --quiet; then
             echo "Nothing to commit - identical render already present. Continuing to the posting step so it can retry."
           else
@@ -64,9 +70,14 @@ jobs:
       - name: Wait for GitHub Pages deployment
         run: sleep 90
 
-      - name: Post test reel to Instagram only
+      - name: Post test reel to all platforms
         working-directory: main
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_X_CHANNEL_ID: ${{ secrets.BUFFER_X_CHANNEL_ID }}
+          BUFFER_THREADS_CHANNEL_ID: ${{ secrets.BUFFER_THREADS_CHANNEL_ID }}
+          BUFFER_PINTEREST_CHANNEL_ID: ${{ secrets.BUFFER_PINTEREST_CHANNEL_ID }}
+          BUFFER_PINTEREST_BOARD_ID: ${{ secrets.BUFFER_PINTEREST_BOARD_ID }}
         run: python3 post_test_hook_reveal.py

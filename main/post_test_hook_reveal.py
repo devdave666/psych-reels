@@ -1,10 +1,17 @@
 import os
+import sys
 import time
 import requests
 
 IG_TOKEN = os.environ['INSTAGRAM_ACCESS_TOKEN']
 IG_USER_ID = os.environ['INSTAGRAM_USER_ID']
+BUFFER_TOKEN = os.environ['BUFFER_API_KEY']
+X_CHANNEL_ID = os.environ['BUFFER_X_CHANNEL_ID']
+THREADS_CHANNEL_ID = os.environ['BUFFER_THREADS_CHANNEL_ID']
+PINTEREST_CHANNEL_ID = os.environ['BUFFER_PINTEREST_CHANNEL_ID']
+PINTEREST_BOARD_ID = os.environ['BUFFER_PINTEREST_BOARD_ID']
 BASE_URL = "https://devdave666.github.io/psych-reels"
+LANDING_PAGE_URL = "https://thb.kit.com/ac3784a0f7"
 
 with open('_selected_id.txt') as f:
     row_id = f.read().strip()
@@ -12,10 +19,16 @@ with open('_selected_text.txt') as f:
     text = f.read()
 with open('_selected_type.txt') as f:
     content_type = f.read().strip()
+with open('_selected_attribution.txt') as f:
+    attribution = f.read()
+with open('_selected_source.txt') as f:
+    source = f.read()
 
 hashtags = "#philosophy #psychology" if content_type == "quote" else "#psychology #philosophy"
 caption = f"{text}\n\n{hashtags}"
+
 video_url = f"{BASE_URL}/videos/hook-{row_id}.mp4"
+pin_url = f"{BASE_URL}/pins/hook-{row_id}.png"
 
 
 def ig_request(endpoint, params):
@@ -76,3 +89,110 @@ permalink = requests.get(
     params={"fields": "permalink", "access_token": IG_TOKEN}
 ).json()
 print(f"Permalink: {permalink.get('permalink', '(unavailable, check profile grid)')}")
+
+
+# --- Buffer: X, Threads, Pinterest ---
+def buffer_post(channel_id, text_content, image_url=None, board_id=None, pin_title=None, dest_url=None):
+    gql_parts = [
+        f'text: "{text_content}"'.replace("\n", "\\n"),
+        f'channelId: "{channel_id}"',
+        'schedulingType: automatic',
+        'mode: shareNow',
+    ]
+    if image_url:
+        gql_parts.append(f'assets: {{ image: {{ url: "{image_url}" }} }}')
+    if board_id:
+        meta = f'metadata: {{ pinterest: {{ boardServiceId: "{board_id}"'
+        if pin_title:
+            meta += f', title: "{pin_title}"'
+        if dest_url:
+            meta += f', url: "{dest_url}"'
+        meta += ' } }'
+        gql_parts.append(meta)
+    query = (
+        "mutation CreatePost { createPost(input: { " + ", ".join(gql_parts) +
+        " }) { ... on PostActionSuccess { post { id } } ... on MutationError { message } } }"
+    )
+    resp = requests.post(
+        "https://api.buffer.com",
+        headers={"Authorization": f"Bearer {BUFFER_TOKEN}", "Content-Type": "application/json"},
+        json={"query": query}
+    )
+    data = resp.json()
+    if "errors" in data:
+        raise Exception(f"Buffer error: {data['errors']}")
+    result = data["data"]["createPost"]
+    if "message" in result:
+        raise Exception(f"Buffer post failed: {result['message']}")
+    return result["post"]["id"]
+
+
+def buffer_post_with_retry(channel_id, text_content, image_url=None, board_id=None, pin_title=None, dest_url=None, retries=3):
+    last_error = None
+    for attempt in range(retries):
+        try:
+            return buffer_post(channel_id, text_content, image_url, board_id, pin_title, dest_url)
+        except Exception as e:
+            last_error = e
+            print(f"Attempt {attempt+1} failed: {e}, retrying in {(attempt+1)*8}s...")
+            time.sleep((attempt + 1) * 8)
+    raise last_error
+
+
+caption_escaped = caption.replace('"', '\\"')
+
+X_LIMIT = 280
+if len(caption) <= X_LIMIT:
+    x_caption = caption
+else:
+    reserve = len(f"\n\n{hashtags}")
+    available = X_LIMIT - reserve - 1
+    trimmed = text[:available].rsplit(" ", 1)[0].rstrip(",.;: ") + "..."
+    x_caption = f"{trimmed}\n\n{hashtags}"
+    if len(x_caption) > X_LIMIT:
+        x_caption = x_caption[:X_LIMIT]
+
+failures = []
+
+try:
+    x_id = buffer_post_with_retry(X_CHANNEL_ID, x_caption.replace('"', '\\"'))
+    print(f"X posted: {x_id}")
+except Exception as e:
+    print(f"X FAILED (continuing anyway): {e}")
+    failures.append(f"X: {e}")
+
+try:
+    threads_id = buffer_post_with_retry(THREADS_CHANNEL_ID, caption_escaped)
+    print(f"Threads posted: {threads_id}")
+except Exception as e:
+    print(f"Threads FAILED (continuing anyway): {e}")
+    failures.append(f"Threads: {e}")
+
+try:
+    import pinterest_seo
+    import board_router
+
+    pin_title = pinterest_seo.build_title(text, attribution, content_type, row_id)
+    pin_description = pinterest_seo.build_description(text, attribution, source, content_type, row_id)
+    routed_board_id = board_router.route(attribution, content_type, text, row_id)
+
+    pin_id = buffer_post_with_retry(
+        PINTEREST_CHANNEL_ID,
+        pin_description.replace('"', '\\"'),
+        image_url=pin_url,
+        board_id=routed_board_id,
+        pin_title=pin_title.replace('"', '\\"'),
+        dest_url=LANDING_PAGE_URL
+    )
+    print(f"Pinterest posted: {pin_id}")
+    print(f"  title: {pin_title}")
+    print(f"  board: {routed_board_id}")
+except Exception as e:
+    print(f"Pinterest FAILED (continuing anyway): {e}")
+    failures.append(f"Pinterest: {e}")
+
+if failures:
+    print("ALL_PLATFORMS_PARTIAL_FAILURE: " + " | ".join(failures))
+    sys.exit(1)
+
+print("ALL_PLATFORMS_SUCCESS")
