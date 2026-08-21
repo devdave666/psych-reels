@@ -1,6 +1,6 @@
 import sys
 
-from composite_card import get_background
+from composite_card import get_background, render_quote_card
 
 # Rotating pool of generic "hook strip" lines - pattern-interrupt anticipation
 # copy that works with any quote/fact underneath it. Picked deterministically
@@ -33,12 +33,6 @@ STRIP_HEIGHT_FRAC = 0.135
 # sitting flush against it. First test post had the strip too high.
 TOP_OFFSET_FRAC = 0.047
 
-# How far the background image gets shifted right within the card canvas,
-# and the resulting narrower text column, so the quote text doesn't run
-# right up against the subject's face - first test post had them touching.
-BG_SHIFT_FRAC = 0.091
-TEXT_WIDTH_FRAC = 0.38
-
 CREAM = (245, 240, 230)
 CHARCOAL = (26, 26, 26)
 GOLD = (184, 134, 46)
@@ -53,79 +47,17 @@ def pick_hook_line(row_id):
 
 
 def render_content_card(quote_text, attribution, source, row_id, out_path="hook_content.png"):
-    """Same visual language as composite_card.py's card, but with extra top
-    margin reserved so the quote never sits under the hook strip that gets
-    overlaid later at the video-compositing step."""
-    from PIL import Image, ImageDraw, ImageFont
-
+    """Same shared layout as composite_card.py's Pinterest card, but with
+    extra top margin reserved so the quote never sits under the hook strip
+    that gets overlaid later at the video-compositing step. Collision with
+    the strip is structurally impossible regardless of content length -
+    render_quote_card's y_start is a max() against this reserved fraction.
+    Bottom-of-canvas overflow for very long entries is handled there too
+    (auto-shrink font, then a loud warning if it still doesn't fit)."""
     bg_name = get_background(attribution, row_id)
-    src = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
-    w, h = src.size
-
-    # Shift the background right to open up breathing room between the
-    # subject and the quote text - crops the (already near-black) right
-    # edge and pads the newly exposed left edge with black, which blends
-    # in since these backgrounds are already black there.
-    shift = int(w * BG_SHIFT_FRAC)
-    img = Image.new("RGB", (w, h), (0, 0, 0))
-    img.paste(src, (shift, 0))
-    draw = ImageDraw.Draw(img)
-
-    quote_font = ImageFont.truetype("fonts/IBMPlexSerif-BoldItalic.ttf", int(h * 0.034))
-    attr_font = ImageFont.truetype("fonts/IBMPlexSerif-Bold.ttf", int(h * 0.014))
-    source_font = ImageFont.truetype("fonts/IBMPlexSerif-Regular.ttf", int(h * 0.013))
-
-    x_margin = int(w * 0.065)
-    max_text_width = int(w * TEXT_WIDTH_FRAC)
-
-    def wrap_text(text, font, max_width):
-        words = text.split()
-        lines = []
-        current = ""
-        for word in words:
-            test = (current + " " + word).strip()
-            bbox = draw.textbbox((0, 0), test, font=font)
-            if bbox[2] - bbox[0] <= max_width:
-                current = test
-            else:
-                if current:
-                    lines.append(current)
-                current = word
-        if current:
-            lines.append(current)
-        return lines
-
-    lines = wrap_text(quote_text, quote_font, max_text_width)
-    line_height = int(h * 0.043)
-    total_text_height = len(lines) * line_height + int(h * 0.067)
-
-    strip_reserved = int(h * (TOP_OFFSET_FRAC + STRIP_HEIGHT_FRAC)) + int(h * 0.025)
-    y_start = max(int(h * 0.08), strip_reserved, (h - total_text_height) / 2)
-
-    y = y_start
-    for line in lines:
-        draw.text((x_margin, y), line, font=quote_font, fill=(255, 255, 255))
-        y += line_height
-
-    y += int(h * 0.02)
-    draw.line([(x_margin, y), (x_margin + int(w * 0.08), y)], fill=(255, 255, 255), width=2)
-    y += int(h * 0.019)
-    draw.text((x_margin, y), attribution.upper(), font=attr_font, fill=(240, 240, 240))
-    y += int(h * 0.021)
-    draw.text((x_margin, y), source, font=source_font, fill=(190, 190, 190))
-
-    handle_font = ImageFont.truetype("fonts/IBMPlexSerif-BoldItalic.ttf", int(h * 0.021))
-    handle_text = "@the_higher_being"
-    letter_spacing = int(h * 0.0022)
-    y_handle = y + line_height
-    x_cursor = x_margin
-    for ch in handle_text:
-        draw.text((x_cursor, y_handle), ch, font=handle_font, fill=GOLD)
-        ch_bbox = draw.textbbox((0, 0), ch, font=handle_font)
-        x_cursor += (ch_bbox[2] - ch_bbox[0]) + letter_spacing
-
-    img.save(out_path)
-    return bg_name, len(lines)
+    top_reserved_frac = TOP_OFFSET_FRAC + STRIP_HEIGHT_FRAC + 0.025
+    return render_quote_card(bg_name, quote_text, attribution, source, row_id,
+                              top_reserved_frac=top_reserved_frac, out_path=out_path)
 
 
 def render_strip(hook_line, out_path="hook_strip.png", width=1080, height=1920):
