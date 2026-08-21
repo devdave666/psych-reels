@@ -1,0 +1,72 @@
+name: TEST Hook Reveal Post (manual, one-off)
+
+# Manual-only trigger for evaluating the new "hook reveal" video concept
+# (dark fade-in with a constant top hook strip) with a real live Instagram
+# post before it's wired into the regular schedule. Does NOT run
+# update_state.py / does not touch main/content.json or main/state.json,
+# so it can't disturb the regular daily-post cursor. Delete this workflow
+# once the concept is either promoted into the real schedule or dropped.
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          pip3 install --break-system-packages Pillow requests
+
+      - name: Select next content (read-only preview, state not advanced)
+        working-directory: main
+        run: python3 select_next.py
+
+      - name: Render hook-reveal card + strip
+        run: |
+          python3 render_hook_reveal.py "$(cat main/_selected_text.txt)" "$(cat main/_selected_attribution.txt)" "$(cat main/_selected_source.txt)" "$(cat main/_selected_id.txt)"
+
+      - name: Render video with saved hook-reveal audio track
+        run: |
+          mkdir -p videos
+          ROW_ID=$(cat main/_selected_id.txt)
+          ffmpeg -y -loop 1 -i hook_content.png -loop 1 -i hook_strip.png \
+            -stream_loop -1 -i hook_reveal_track.mp3 -t 30 \
+            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=1.5:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
+            -map "[v]" -map 2:a \
+            -c:v libx264 -pix_fmt yuv420p -r 30 -crf 18 -preset slow \
+            -c:a aac -b:a 192k -ar 48000 \
+            -shortest \
+            "videos/hook-${ROW_ID}.mp4"
+
+      - name: Commit rendered video
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          ROW_ID=$(cat main/_selected_id.txt)
+          git add "videos/hook-${ROW_ID}.mp4"
+          if git diff --cached --quiet; then
+            echo "Nothing to commit - identical render already present. Continuing to the posting step so it can retry."
+          else
+            git commit -m "Hook-reveal concept test render: row ${ROW_ID}"
+            for i in 1 2 3 4 5; do
+              git pull --rebase origin main && git push && break
+              echo "Push failed, retrying ($i)..."
+              sleep 5
+            done
+          fi
+
+      - name: Wait for GitHub Pages deployment
+        run: sleep 90
+
+      - name: Post test reel to Instagram only
+        working-directory: main
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+        run: python3 post_test_hook_reveal.py
