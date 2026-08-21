@@ -28,6 +28,17 @@ HOOK_LINES = [
 # actually lines up with where the strip gets composited.
 STRIP_HEIGHT_FRAC = 0.135
 
+# Dark gap held above the strip so it clears Reels' UI-obscured top zone
+# (back button/camera icon overlay the very top edge in-app) instead of
+# sitting flush against it. First test post had the strip too high.
+TOP_OFFSET_FRAC = 0.047
+
+# How far the background image gets shifted right within the card canvas,
+# and the resulting narrower text column, so the quote text doesn't run
+# right up against the subject's face - first test post had them touching.
+BG_SHIFT_FRAC = 0.091
+TEXT_WIDTH_FRAC = 0.38
+
 CREAM = (245, 240, 230)
 CHARCOAL = (26, 26, 26)
 GOLD = (184, 134, 46)
@@ -48,8 +59,16 @@ def render_content_card(quote_text, attribution, source, row_id, out_path="hook_
     from PIL import Image, ImageDraw, ImageFont
 
     bg_name = get_background(attribution, row_id)
-    img = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
-    w, h = img.size
+    src = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
+    w, h = src.size
+
+    # Shift the background right to open up breathing room between the
+    # subject and the quote text - crops the (already near-black) right
+    # edge and pads the newly exposed left edge with black, which blends
+    # in since these backgrounds are already black there.
+    shift = int(w * BG_SHIFT_FRAC)
+    img = Image.new("RGB", (w, h), (0, 0, 0))
+    img.paste(src, (shift, 0))
     draw = ImageDraw.Draw(img)
 
     quote_font = ImageFont.truetype("fonts/IBMPlexSerif-BoldItalic.ttf", int(h * 0.034))
@@ -57,7 +76,7 @@ def render_content_card(quote_text, attribution, source, row_id, out_path="hook_
     source_font = ImageFont.truetype("fonts/IBMPlexSerif-Regular.ttf", int(h * 0.013))
 
     x_margin = int(w * 0.065)
-    max_text_width = int(w * 0.42)
+    max_text_width = int(w * TEXT_WIDTH_FRAC)
 
     def wrap_text(text, font, max_width):
         words = text.split()
@@ -80,7 +99,7 @@ def render_content_card(quote_text, attribution, source, row_id, out_path="hook_
     line_height = int(h * 0.043)
     total_text_height = len(lines) * line_height + int(h * 0.067)
 
-    strip_reserved = int(h * STRIP_HEIGHT_FRAC) + int(h * 0.025)
+    strip_reserved = int(h * (TOP_OFFSET_FRAC + STRIP_HEIGHT_FRAC)) + int(h * 0.025)
     y_start = max(int(h * 0.08), strip_reserved, (h - total_text_height) / 2)
 
     y = y_start
@@ -116,12 +135,14 @@ def render_strip(hook_line, out_path="hook_strip.png", width=1080, height=1920):
     content beneath it."""
     from PIL import Image, ImageDraw, ImageFont
 
+    top_offset = int(height * TOP_OFFSET_FRAC)
     strip_h = int(height * STRIP_HEIGHT_FRAC)
+    strip_bottom = top_offset + strip_h
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
-    draw.rectangle([0, 0, width, strip_h], fill=(*CREAM, 255))
-    draw.rectangle([0, strip_h - 4, width, strip_h], fill=(*GOLD, 255))
+    draw.rectangle([0, top_offset, width, strip_bottom], fill=(*CREAM, 255))
+    draw.rectangle([0, strip_bottom - 4, width, strip_bottom], fill=(*GOLD, 255))
 
     font = ImageFont.truetype("fonts/IBMPlexSerif-Bold.ttf", int(height * 0.028))
     max_width = int(width * 0.86)
@@ -146,7 +167,7 @@ def render_strip(hook_line, out_path="hook_strip.png", width=1080, height=1920):
     lines = wrap_text(hook_line, font, max_width)
     line_height = int(height * 0.038)
     total_h = len(lines) * line_height
-    y = (strip_h - total_h) / 2
+    y = top_offset + (strip_h - total_h) / 2
 
     for line in lines:
         bbox = draw.textbbox((0, 0), line, font=font)

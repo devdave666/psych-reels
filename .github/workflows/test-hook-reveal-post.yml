@@ -37,7 +37,7 @@ jobs:
           ROW_ID=$(cat main/_selected_id.txt)
           ffmpeg -y -loop 1 -i hook_content.png -loop 1 -i hook_strip.png \
             -stream_loop -1 -i hook_reveal_track.mp3 -t 30 \
-            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=1.5:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
+            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=3.0:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
             -map "[v]" -map 2:a \
             -c:v libx264 -pix_fmt yuv420p -r 30 -crf 18 -preset slow \
             -c:a aac -b:a 192k -ar 48000 \
