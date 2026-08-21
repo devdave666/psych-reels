@@ -39,9 +39,17 @@ jobs:
       - name: Render video - dark fade-in with constant top hook strip
         run: |
           ROW_ID=$(cat main/_selected_id.txt)
+          # 18s total (was 30s): Meta's own data shows average watch time
+          # falls off a cliff after ~10s regardless of runtime, so the
+          # trailing ~15-20s of a 30s clip was mostly unwatched dead air -
+          # actively hurting completion-rate ranking for zero extra watched
+          # seconds. 3s fade (was 10s) scaled down to match - still reads as
+          # a deliberate build, not the 1.5s "too quick" version, but leaves
+          # a full 15s at full brightness, comfortably covering even our
+          # longest (~28-word) entries with room to read the attribution too.
           ffmpeg -y -loop 1 -i hook_content.png -loop 1 -i hook_strip.png \
-            -stream_loop -1 -i hook_reveal_track.mp3 -t 30 \
-            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=10.0:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
+            -stream_loop -1 -i hook_reveal_track.mp3 -t 18 \
+            -filter_complex "[0:v]scale=1080:1890,pad=1080:1920:0:15:color=black,fade=t=in:st=0:d=3.0:color=black,setsar=1[bg];[1:v]scale=1080:1920[strip];[bg][strip]overlay=0:0:format=auto[v]" \
             -map "[v]" -map 2:a \
             -c:v libx264 -pix_fmt yuv420p -r 30 -crf 18 -preset slow \
             -c:a aac -b:a 192k -ar 48000 \
