@@ -52,8 +52,17 @@ if __name__ == "__main__":
     row_id = sys.argv[4]
 
     bg_name = get_background(attribution, row_id)
-    img = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
-    w, h = img.size
+    src = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
+    w, h = src.size
+
+    # Shift the background right to open up breathing room between the
+    # subject and the quote text (same fix applied to render_hook_reveal.py -
+    # subject was sitting right up against the text). Crops the (already
+    # near-black) right edge and pads the newly exposed left edge with
+    # black, which blends in since these backgrounds are already black there.
+    shift = int(w * 0.091)
+    img = Image.new("RGB", (w, h), (0, 0, 0))
+    img.paste(src, (shift, 0))
     draw = ImageDraw.Draw(img)
 
     quote_font = ImageFont.truetype("fonts/IBMPlexSerif-BoldItalic.ttf", int(h * 0.034))
@@ -61,7 +70,7 @@ if __name__ == "__main__":
     source_font = ImageFont.truetype("fonts/IBMPlexSerif-Regular.ttf", int(h * 0.013))
 
     x_margin = int(w * 0.065)
-    max_text_width = int(w * 0.42)
+    max_text_width = int(w * 0.38)
 
     def wrap_text(text, font, max_width):
         words = text.split()
