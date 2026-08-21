@@ -7,7 +7,7 @@ scratch. If you are an AI reading this: read this whole file before doing
 anything. If you are Dev reading this: see HUMAN_QUICKSTART.md in this same
 folder for the short version to paste into a new chat.
 
-Last updated: 2026-08-13
+Last updated: 2026-08-21
 
 ## What this project is
 
@@ -32,6 +32,9 @@ main/               Daily quote/fact pipeline (163+ entries)
   state.json        {"cursor": N} - index into content.json for "what's next"
   select_next.py    Picks the next unused entry from cursor, wraps around
   post_all.py       Posts to Instagram (video) + X/Threads/Pinterest (Buffer)
+  post_test_hook_reveal.py  Same posting logic as post_all.py, pointed at
+                     hook-{id} filenames instead of main-{id} - used by the
+                     manual test-hook-reveal-post.yml workflow only
   update_state.py   Marks entry used + advances cursor (gated on Instagram
                      actually succeeding - see GOTCHAS below)
   pinterest_seo.py  Builds keyword-rich Pinterest titles/descriptions
@@ -66,17 +69,50 @@ links/              Self-hosted link-in-bio page (replaces Linktree)
 
 composite_card.py   Shared image renderer for main/ pipeline's statue+quote
                      cards. IMAGE_MAP maps philosopher names to background
-                     files in backgrounds/. Non-philosopher facts use a
-                     single fixed "psychology2.jpg" background.
+                     files in backgrounds/. Non-philosopher facts alternate
+                     psychology1.jpg/psychology2.jpg. render_quote_card() is
+                     the actual drawing function - both this file's __main__
+                     (Pinterest pin) and render_hook_reveal.py (video content
+                     layer) call it, so a layout fix only ever needs to
+                     happen once (see GOTCHAS - this used to be duplicated
+                     and that bit us).
+render_hook_reveal.py   Adds the hook-strip overlay + rotating hook-line pool
+                     on top of composite_card's shared card - see "Hook-reveal
+                     reel format" above. Not used by the Pinterest pin.
+hook_reveal_track.mp3   Fixed audio track for the hook-reveal video format,
+                     extracted from a reference reel - see "Hook-reveal reel
+                     format" above.
 
-backgrounds/         ~28 statue/abstract images (1080x1344, dark aesthetic)
+backgrounds/         ~28 statue/abstract images (roughly 768x1344, dark
+                     aesthetic). psychology2.jpg was swapped 2026-08-21 to a
+                     different statue look the human specifically wanted -
+                     see GOTCHAS for where that asset actually came from.
 fonts/                IBM Plex Serif (Regular, Bold, BoldItalic) - the only
                       typeface used anywhere in this project
-pins/, videos/        Generated output, committed by the workflows themselves
+pins/, videos/        Generated output, committed by the workflows themselves.
+                      videos/main-{id}.mp4 is the hook-reveal format (18s);
+                      pins/main-{id}.png is the plain static card, no strip.
 
 .github/workflows/
   main-daily-post.yml       Daily, 13:00 UTC nominal (GitHub's scheduler is
-                            unreliable - see GOTCHAS)
+                            unreliable - see GOTCHAS). LIVE workflow - as of
+                            2026-08-21 this renders the hook-reveal video
+                            format (see "Hook-reveal reel format" below), not
+                            a plain static card. missed-post-check.yml's
+                            recovery dispatch targets this file by name, so
+                            it must keep this exact filename.
+  main-daily-post-legacy-static-card.yml   DORMANT revert path - the old
+                            pre-hook-reveal logic (static card looped over
+                            track1-5.mp3, no fade, no strip), workflow_dispatch
+                            only so it can never fire on its own and double-post
+                            alongside the live workflow. Kept in case the
+                            hook-reveal format ever needs rolling back.
+  test-hook-reveal-post.yml  Manual-only (workflow_dispatch), for one-off live
+                            test posts when iterating on the hook-reveal
+                            format. Posts to ALL platforms via
+                            main/post_test_hook_reveal.py. Deliberately does
+                            NOT run update_state.py, so it can never disturb
+                            main/content.json's cursor - safe to fire anytime.
   editorial-post.yml        Mon/Thu
   missed-post-check.yml     Daily, 17:00 UTC - the self-healing safety net
   generate-content.yml      LEGACY - was Make.com's dispatch target before
@@ -86,6 +122,52 @@ pins/, videos/        Generated output, committed by the workflows themselves
                             deleted, not just deactivated - deactivating
                             alone was proven unreliable once already).
 ```
+
+## Hook-reveal reel format (live in main/ since 2026-08-21)
+
+The Instagram reel (not the Pinterest pin - see below) now renders as: the
+card fades in from black over 3s while a constant cream/charcoal/gold "hook
+strip" banner sits pinned near the top from frame 0, holding a short
+pattern-interrupt line ("Wait for the part that actually explains why.",
+etc. - rotating pool, picked deterministically by row_id, see HOOK_LINES in
+render_hook_reveal.py). Total video length is 18s (cut down from the
+original 30s - see GOTCHAS for why). Audio is a single fixed track,
+`hook_reveal_track.mp3` at the repo root, extracted from a reference reel
+the human liked and reused since - not part of the old track1-5.mp3.mp3
+rotation.
+
+Concept origin: reverse-engineered from an unrelated account's reel the
+human sent as a reference, then iterated live against real posted test reels
+(not just local previews) until approved. `composite_card.py`'s
+`render_quote_card()` is the single shared layout function - it draws the
+statue+quote+attribution+handle card and is used by BOTH:
+  - the Pinterest pin (plain, `top_reserved_frac=0`, no hook strip - a
+    static image gets no benefit from a banner designed to create
+    anticipation for a video reveal, and it just wastes vertical space)
+  - the video's content layer (`render_hook_reveal.py`'s `render_content_card`,
+    `top_reserved_frac` set so the quote text can never start above where
+    the strip ends - see "Safety net for future content" below)
+
+`render_hook_reveal.py` only adds the hook-strip overlay (`render_strip()`)
+and the HOOK_LINES pool on top of that shared card. The actual fade + strip
+compositing happens in the ffmpeg `-filter_complex` step in the workflow
+YAML, not in Python: the content layer fades in from black
+(`fade=t=in:st=0:d=3.0:color=black`), then the strip PNG (opaque, doesn't
+fade) is overlaid on top, so it reads at constant full brightness from
+frame 0 while everything beneath it builds.
+
+**Safety net for future content (added 2026-08-21):** strip collision is
+structurally impossible for any content length - `render_quote_card`'s
+`y_start` is a `max()` against the reserved top margin, always. Bottom-of-
+canvas overflow for a very long future entry is NOT structurally impossible
+on its own, so `render_quote_card` auto-shrinks the quote font and re-wraps
+if the full text block would run past a safe bottom margin, and hard-fails
+(`SystemExit`, non-zero exit) if it still doesn't fit even at the minimum
+readable size - deliberately not just a `print()` warning, since this runs
+unattended and nobody reads the logs unless something else already flagged
+it. A hard failure here leaves content.json's cursor unadvanced, same
+recovery path as any other render/post failure (surfaces via
+missed-post-check.yml's email).
 
 ## External services and how access works
 
@@ -235,6 +317,45 @@ push" - the workflows pick it up from there.
   attributed before adding them - several widely-circulated ones are fake.
   Same bar applies to psychology claims: state evidence strength honestly,
   don't oversell popular claims that have weak support.
+- **Check git history before reverse-engineering a "lost" visual asset.**
+  Asked to bring back a statue background from an old Instagram post, first
+  instinct was to download that reel's own video and extract/crop a frame
+  from it - which worked, but the frame was from re-encoded, low-bitrate
+  video, so the "black" background had visible compression noise instead of
+  being pure black, and seamed against the actual pure-black canvas the
+  text sits on. The real full-resolution original was sitting untouched in
+  git history the whole time (`git log --all --oneline -- <path>` then
+  `git show <commit>:<path>`) - it was an early version of psychology1.jpg,
+  later replaced during an unrelated fix pass. Check history FIRST for any
+  asset the human references as "how it used to look" - things here rarely
+  get deleted for content reasons, they fall out of rotation during
+  unrelated fix commits and just sit in history unreferenced.
+- **Duplicated layout/logic across files will drift.** The statue-spacing
+  fix (shift background right, narrow the text column) had to be
+  independently re-applied to both composite_card.py and
+  render_hook_reveal.py the first time, because the card-drawing code was
+  copy-pasted between them. Consolidated into composite_card.py's
+  render_quote_card(), which both now call - if similar duplication creeps
+  back in for a future format, prefer extracting a shared function up
+  front rather than letting two copies diverge.
+- **For unattended pipeline code, prefer hard failure over a warning log
+  line.** render_quote_card's auto-shrink safety net (2026-08-21) originally
+  just printed a warning if content still overflowed the canvas at minimum
+  font size. Changed to `raise SystemExit(...)` instead - a print() in a
+  GitHub Actions log nobody is watching is equivalent to no warning at all.
+  Failing the step loudly leaves state correctly unadvanced and surfaces
+  through the existing missed-post-check email safety net, same as any
+  other failure mode in this pipeline.
+- **Reel length was cut 30s -> 18s (2026-08-21) based on actual research,
+  not just instinct** - Meta's own data shows average watch time falls off
+  a cliff after ~10s regardless of total runtime, so the old 30s clip's
+  trailing ~15-20s was mostly unwatched dead air actively hurting
+  completion-rate ranking for zero extra watched seconds. Landed on 18s
+  (not a more aggressive 10s cut) specifically because this is text you
+  have to read, not passive entertainment footage - checked the actual
+  longest real content entries against typical reading speed first. If
+  future entries get meaningfully longer than today's ~28-word max, revisit
+  this number rather than assuming 18s still leaves enough reading time.
 
 ## Current experimental work
 
@@ -247,6 +368,11 @@ still being tuned (the human wants more "authority/sage" quality and less
 robotic monotone delivery than Kokoro's default prosody gives), timing/
 alignment step not yet built. Do not merge anything from this branch to
 main without the human explicitly confirming it's ready.
+
+(The hook-reveal reel format was also experimental this session - built,
+tested live, iterated on real feedback, and promoted to the live
+main-daily-post.yml workflow on 2026-08-21. It's no longer experimental;
+see "Hook-reveal reel format" above for how it actually works.)
 
 ## Tone/brand notes worth preserving
 
@@ -261,3 +387,12 @@ overclaims pop-psychology/self-diagnosis framing (e.g. "if X bothers you,
 you might have OCD/ADHD") even when it would likely perform well, because
 it contradicts the account's evidence-based positioning - respect this if
 asked for similar content again.
+
+The hook-reveal strip (see above) uses its own deliberately distinct
+sub-palette rather than the brand gold/dark: cream/off-white bar
+(#F5F0E6-ish), charcoal text (#1A1A1A-ish), thin gold bottom border. This
+was a deliberate choice, not an inconsistency - it's meant to read as a
+pattern-interrupt against the otherwise dark, fading card beneath it, same
+job the stark white-bar-on-black does in the original reference reel, just
+reworked into on-brand serif/warm-neutral tones instead of a plain
+white/black sans-serif treatment.
