@@ -45,26 +45,13 @@ def get_background(attribution, row_id):
 
 GOLD = (222, 178, 110)
 
-# Shared by composite_card.py's own Pinterest-card render AND
-# render_hook_reveal.py's video-card render, so a layout fix (or a safety
-# fix like the auto-shrink below) only ever needs to happen in one place -
-# the statue-spacing fix previously had to be patched in both files
-# separately because this used to be duplicated.
-def render_quote_card(bg_name, quote_text, attribution, source, row_id, top_reserved_frac=0, out_path="card.png"):
+def layout_quote_card(w, h, quote_text, row_id, top_reserved_frac=0):
+    """Pure layout step shared by render_quote_card (static card) and
+    render_typewriter_reel.py (animated). Returns every font and coordinate
+    the card needs so both renderers land on pixel-identical positions."""
     from PIL import Image, ImageDraw, ImageFont
 
-    src = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
-    w, h = src.size
-
-    # Shift the background right to open up breathing room between the
-    # subject and the quote text - subject was sitting right up against
-    # the text. Crops the (already near-black) right edge and pads the
-    # newly exposed left edge with black, which blends in since these
-    # backgrounds are already black there.
-    shift = int(w * 0.091)
-    img = Image.new("RGB", (w, h), (0, 0, 0))
-    img.paste(src, (shift, 0))
-    draw = ImageDraw.Draw(img)
+    draw = ImageDraw.Draw(Image.new("RGB", (w, h)))
 
     x_margin = int(w * 0.065)
     max_text_width = int(w * 0.38)
@@ -124,19 +111,31 @@ def render_quote_card(bg_name, quote_text, attribution, source, row_id, top_rese
             f"({len(lines)} lines) - this entry needs shortening in content.json."
         )
 
-    y = y_start
-    for line in lines:
-        draw.text((x_margin, y), line, font=quote_font, fill=(255, 255, 255))
-        y += line_height
+    return {
+        "x_margin": x_margin,
+        "attr_font": attr_font,
+        "source_font": source_font,
+        "handle_font": handle_font,
+        "quote_font": quote_font,
+        "lines": lines,
+        "line_height": line_height,
+        "y_start": y_start,
+    }
 
+
+def draw_attribution_block(draw, w, h, lay, attribution, source):
+    """Divider + attribution + source + handle, below the quote lines."""
+    x_margin, line_height = lay["x_margin"], lay["line_height"]
+    y = lay["y_start"] + len(lay["lines"]) * line_height
     y += int(h * 0.02)
     draw.line([(x_margin, y), (x_margin + int(w * 0.08), y)], fill=(255, 255, 255), width=2)
     y += int(h * 0.019)
-    draw.text((x_margin, y), attribution.upper(), font=attr_font, fill=(240, 240, 240))
+    draw.text((x_margin, y), attribution.upper(), font=lay["attr_font"], fill=(240, 240, 240))
     y += int(h * 0.021)
-    draw.text((x_margin, y), source, font=source_font, fill=(190, 190, 190))
+    draw.text((x_margin, y), source, font=lay["source_font"], fill=(190, 190, 190))
 
     handle_text = "@the_higher_being"
+    handle_font = lay["handle_font"]
     letter_spacing = int(h * 0.0022)
     y_handle = y + line_height
     x_cursor = x_margin
@@ -145,8 +144,43 @@ def render_quote_card(bg_name, quote_text, attribution, source, row_id, top_rese
         ch_bbox = draw.textbbox((0, 0), ch, font=handle_font)
         x_cursor += (ch_bbox[2] - ch_bbox[0]) + letter_spacing
 
+
+def shifted_background(bg_name):
+    """Statue image shifted right to open breathing room before the text -
+    subject was sitting right up against the text. Crops the (already
+    near-black) right edge and pads the newly exposed left edge with black,
+    which blends in since these backgrounds are already black there."""
+    from PIL import Image
+
+    src = Image.open(f"backgrounds/{bg_name}.jpg").convert("RGB")
+    w, h = src.size
+    shift = int(w * 0.091)
+    img = Image.new("RGB", (w, h), (0, 0, 0))
+    img.paste(src, (shift, 0))
+    return img
+
+
+# Shared by composite_card.py's own Pinterest-card render AND
+# render_hook_reveal.py's video-card render, so a layout fix (or a safety
+# fix like the auto-shrink in layout_quote_card) only ever needs to happen
+# in one place - the statue-spacing fix previously had to be patched in
+# both files separately because this used to be duplicated.
+def render_quote_card(bg_name, quote_text, attribution, source, row_id, top_reserved_frac=0, out_path="card.png"):
+    from PIL import ImageDraw
+
+    img = shifted_background(bg_name)
+    w, h = img.size
+    draw = ImageDraw.Draw(img)
+
+    lay = layout_quote_card(w, h, quote_text, row_id, top_reserved_frac)
+    y = lay["y_start"]
+    for line in lay["lines"]:
+        draw.text((lay["x_margin"], y), line, font=lay["quote_font"], fill=(255, 255, 255))
+        y += lay["line_height"]
+    draw_attribution_block(draw, w, h, lay, attribution, source)
+
     img.save(out_path)
-    return bg_name, len(lines)
+    return bg_name, len(lay["lines"])
 
 
 if __name__ == "__main__":

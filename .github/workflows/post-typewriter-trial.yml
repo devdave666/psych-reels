@@ -1,0 +1,25 @@
+name: Post Typewriter Trial Reel (Instagram only, manual)
+
+# One-off manual post of videos/typewriter-trial-{row_id}.mp4 to Instagram
+# only. Does not touch content.json / state.json. Delete once the
+# typewriter format is promoted or dropped.
+on:
+  workflow_dispatch:
+    inputs:
+      row_id:
+        description: "content.json row id of the trial video"
+        default: "39"
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip3 install --break-system-packages requests
+      - name: Post to Instagram
+        working-directory: main
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          ROW_ID: ${{ inputs.row_id }}
+        run: python3 post_typewriter_trial.py
