@@ -1,5 +1,5 @@
 """Typewriter reel: black screen -> the quote is typed out letter by letter
-with typewriter sounds, while the statue and the attribution/handle block
+with real mechanical-keyboard key sounds, while the statue and the attribution/handle block
 fade in slowly, reaching full brightness exactly when typing ends. Nothing
 else is ever on screen. The final frame is the same card the static
 pipeline renders (composite_card.py's layout), so the two stay consistent.
@@ -12,6 +12,7 @@ black time), pace is ~20 chars/sec with human-ish jitter, and the whole
 typing run is clamped to MIN_TYPING..MAX_TYPING seconds so short quotes
 don't flash by and long ones don't drag.
 """
+import os
 import random
 import subprocess
 import sys
@@ -38,8 +39,8 @@ HOLD_AFTER = 2.5             # fully-lit card held after the last key
 
 def build_timeline(lines, seed):
     """-> (events, typing_end). Each event is (time, line_idx, chars_in_line,
-    kind) where kind is 'key', 'space' or 'return' (carriage return sound
-    before the first key of a new line)."""
+    kind) where kind is 'key', 'space' or 'return' (a deep stroke for the
+    line break, played before the first key of a new line)"""
     rng = random.Random(seed)
 
     def pass_(scale):
@@ -70,102 +71,55 @@ def build_timeline(lines, seed):
 
 
 # ---------------------------------------------------------------- audio
-# Everything is filtered noise plus low "body" resonances - no pitched
-# high sine tones (those read as beeps, not machinery). A short synthetic
-# room tail and a gentle low-pass keep it warm rather than harsh.
+# Real keystrokes sliced from a mechanical-keyboard recording (see
+# extract_key_samples.py), not synthesis: sfx/keys/key-*.wav for letters,
+# space-*.wav (the deepest strokes) for the space bar and line breaks.
+# Each hit gets a small random gain/pitch nudge and never repeats the
+# previous sample, so fast typing doesn't sound like a loop.
 
-def _env(n, decay):
-    return np.exp(-np.arange(n) / (SR * decay))
-
-
-def _bandpass(x, lo, hi):
-    spec = np.fft.rfft(x)
-    freqs = np.fft.rfftfreq(len(x), 1 / SR)
-    gain = np.clip((freqs - lo) / (lo * 0.4 + 1), 0, 1) * np.clip((hi - freqs) / (hi * 0.4 + 1), 0, 1)
-    y = np.fft.irfft(spec * gain, len(x))
-    return y / (y.std() + 1e-9)          # unit level so component gains are comparable
+KEY_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sfx", "keys")
 
 
-def _noise(rng, n):
-    return np.random.default_rng(rng.randrange(1 << 30)).standard_normal(n)
+def _load_bank():
+    bank = {"key": [], "space": []}
+    for name in sorted(os.listdir(KEY_DIR)):
+        if not name.endswith(".wav"):
+            continue
+        with wave.open(os.path.join(KEY_DIR, name)) as w:
+            assert w.getframerate() == SR and w.getnchannels() == 1
+            x = np.frombuffer(w.readframes(w.getnframes()), np.int16).astype(np.float64) / 32768
+        bank["space" if name.startswith("space") else "key"].append(x)
+    if not bank["key"] or not bank["space"]:
+        raise SystemExit(f"no key samples in {KEY_DIR} - run extract_key_samples.py")
+    return bank
 
 
-def _place(buf, snd, at):
-    i = int(at * SR)
-    if i < 0 or i >= len(buf):
-        return
-    buf[i: i + len(snd)] += snd[: len(buf) - i]
+def _repitch(x, ratio):
+    idx = np.arange(0, len(x) - 1, ratio)
+    return np.interp(idx, np.arange(len(x)), x)
 
 
-def _key_sound(rng, kind):
-    n = int(SR * 0.16)
-    t = np.arange(n) / SR
-    heavy = kind == "space"
-    out = np.zeros(n)
-    # quiet high-band mechanical tick riding on the strike
-    tick = _bandpass(_noise(rng, n), 2500, 6000) * _env(n, 0.0015) * 0.35
-    # type-bar strike on the platen: mid-band noise, very short
-    strike = _bandpass(_noise(rng, n), 700, 3800) * _env(n, 0.005) * (0.6 if heavy else 2.2)
-    # wooden/metal body "thock"
-    body = _bandpass(_noise(rng, n), 120, 520) * _env(n, 0.035 if heavy else 0.022) * (1.2 if heavy else 0.55)
-    f0 = rng.uniform(75, 95) if heavy else rng.uniform(110, 170)
-    thump = np.sin(2 * np.pi * f0 * t) * _env(n, 0.03 if heavy else 0.018) * (0.5 if heavy else 0.25)
-    out += tick + strike + body + thump
-    return out * rng.uniform(0.75, 1.0)
-
-
-def _return_sound(rng):
-    """Carriage return: rolling ratchet (noise gated at ~85Hz), then a slam."""
-    n = int(SR * 0.26)
-    t = np.arange(n) / SR
-    gate = (np.sin(2 * np.pi * 85 * t) > 0.2).astype(float)
-    zip_ = _bandpass(_noise(rng, n), 900, 3200) * gate * np.linspace(1, 0.5, n) * 0.28
-    out = np.zeros(int(SR * 0.5))
-    out[:n] += zip_
-    slam = _key_sound(rng, "space") * 1.2
-    _place(out, slam, 0.22)
-    return out
-
-
-def _bell():
-    """Soft warm bell - low partials, longer decay, quiet."""
-    n = int(SR * 1.4)
-    t = np.arange(n) / SR
-    s = (np.sin(2 * np.pi * 1760 * t) * 0.6
-         + np.sin(2 * np.pi * 2655 * t) * 0.25
-         + np.sin(2 * np.pi * 3520 * t) * 0.1) * _env(n, 0.35)
-    s[:int(SR * 0.003)] *= np.linspace(0, 1, int(SR * 0.003))
-    return s * 0.14
-
-
-def _room(buf, seed):
-    """Short diffuse room tail, ~12% wet."""
-    rng = np.random.default_rng(seed)
-    n = int(SR * 0.09)
-    ir = rng.standard_normal(n) * _env(n, 0.025)
-    ir[0] = 0
-    wet = np.convolve(buf, ir, mode="full")[: len(buf)]
-    return buf + wet * (0.12 * np.abs(buf).max() / max(np.abs(wet).max(), 1e-9))
-
-
-def synth_audio(events, total_s, bell_at, seed, path):
+def synth_audio(events, total_s, seed, path):
     rng = random.Random(seed + 1)
+    bank = _load_bank()
     buf = np.zeros(int(SR * (total_s + 0.5)))
+    last = {"key": -1, "space": -1}
     for t, _, _, kind in events:
-        snd = _return_sound(rng) if kind == "return" else _key_sound(rng, kind)
-        _place(buf, snd, t)
-    _place(buf, _bell(), bell_at)
-    buf = _room(buf, seed)
-    buf = _bandpass(buf, 60, 9000)                      # tame harsh highs and rumble
+        pool = "key" if kind == "key" else "space"      # line breaks use a deep stroke too
+        choices = [i for i in range(len(bank[pool])) if i != last[pool]] or [0]
+        last[pool] = rng.choice(choices)
+        snd = _repitch(bank[pool][last[pool]], rng.uniform(0.96, 1.04))
+        snd = snd * rng.uniform(0.82, 1.0) * (1.1 if kind == "return" else 1.0)
+        i = int(t * SR)
+        buf[i: i + len(snd)] += snd[: len(buf) - i]
     buf = buf[: int(SR * total_s)]
-    buf = np.tanh(buf * 0.9)
-    buf *= 0.6 / max(np.abs(buf).max(), 1e-6)           # peak ~ -3 dB
-    pcm = (buf * 32767).astype(np.int16)
+    buf = np.tanh(buf * 0.9)                              # soft limit where fast keys stack
+    buf *= 0.8 / max(np.abs(buf).max(), 1e-6)
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
         w.setsampwidth(2)
         w.setframerate(SR)
-        w.writeframes(pcm.tobytes())
+        w.writeframes((buf * 32767).astype(np.int16).tobytes())
 
 
 # ---------------------------------------------------------------- video
@@ -193,8 +147,7 @@ def render_reel(quote_text, attribution, source, row_id, out_path="typewriter_re
     total_s = typing_end + HOLD_AFTER
     n_frames = int(round(total_s * FPS))
 
-    synth_audio(events, total_s, bell_at=typing_end + 0.12, seed=int(row_id) if str(row_id).isdigit() else 0,
-                path=work_wav)
+    synth_audio(events, total_s, seed=int(row_id) if str(row_id).isdigit() else 0, path=work_wav)
 
     ff = subprocess.Popen(
         ["ffmpeg", "-y", "-loglevel", "error",
