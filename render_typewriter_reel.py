@@ -70,47 +70,82 @@ def build_timeline(lines, seed):
 
 
 # ---------------------------------------------------------------- audio
+# Everything is filtered noise plus low "body" resonances - no pitched
+# high sine tones (those read as beeps, not machinery). A short synthetic
+# room tail and a gentle low-pass keep it warm rather than harsh.
 
 def _env(n, decay):
     return np.exp(-np.arange(n) / (SR * decay))
 
 
+def _bandpass(x, lo, hi):
+    spec = np.fft.rfft(x)
+    freqs = np.fft.rfftfreq(len(x), 1 / SR)
+    gain = np.clip((freqs - lo) / (lo * 0.4 + 1), 0, 1) * np.clip((hi - freqs) / (hi * 0.4 + 1), 0, 1)
+    y = np.fft.irfft(spec * gain, len(x))
+    return y / (y.std() + 1e-9)          # unit level so component gains are comparable
+
+
+def _noise(rng, n):
+    return np.random.default_rng(rng.randrange(1 << 30)).standard_normal(n)
+
+
+def _place(buf, snd, at):
+    i = int(at * SR)
+    if i < 0 or i >= len(buf):
+        return
+    buf[i: i + len(snd)] += snd[: len(buf) - i]
+
+
 def _key_sound(rng, kind):
-    n = int(SR * 0.09)
+    n = int(SR * 0.16)
     t = np.arange(n) / SR
-    noise = np.random.default_rng(rng.randrange(1 << 30)).standard_normal(n)
-    noise = np.concatenate([[0], np.diff(noise)])            # crude high-pass
-    click = noise * _env(n, 0.004) * 0.55
-    f = rng.uniform(2400, 3800)
-    tick = np.sin(2 * np.pi * f * t) * _env(n, 0.0045) * 0.35   # metallic strike
-    f0 = rng.uniform(95, 150) if kind == "key" else rng.uniform(70, 95)
-    thump = np.sin(2 * np.pi * f0 * t) * _env(n, 0.018 if kind == "key" else 0.03)
-    thump *= 0.9 if kind == "key" else 1.2
-    s = click + tick + thump
-    return s * rng.uniform(0.8, 1.0)
+    heavy = kind == "space"
+    out = np.zeros(n)
+    # quiet high-band mechanical tick riding on the strike
+    tick = _bandpass(_noise(rng, n), 2500, 6000) * _env(n, 0.0015) * 0.35
+    # type-bar strike on the platen: mid-band noise, very short
+    strike = _bandpass(_noise(rng, n), 700, 3800) * _env(n, 0.005) * (0.6 if heavy else 2.2)
+    # wooden/metal body "thock"
+    body = _bandpass(_noise(rng, n), 120, 520) * _env(n, 0.035 if heavy else 0.022) * (1.2 if heavy else 0.55)
+    f0 = rng.uniform(75, 95) if heavy else rng.uniform(110, 170)
+    thump = np.sin(2 * np.pi * f0 * t) * _env(n, 0.03 if heavy else 0.018) * (0.5 if heavy else 0.25)
+    out += tick + strike + body + thump
+    return out * rng.uniform(0.75, 1.0)
 
 
 def _return_sound(rng):
-    """Carriage return: fast ratchet zip, then a dull slam."""
+    """Carriage return: rolling ratchet (noise gated at ~85Hz), then a slam."""
+    n = int(SR * 0.26)
+    t = np.arange(n) / SR
+    gate = (np.sin(2 * np.pi * 85 * t) > 0.2).astype(float)
+    zip_ = _bandpass(_noise(rng, n), 900, 3200) * gate * np.linspace(1, 0.5, n) * 0.28
     out = np.zeros(int(SR * 0.5))
-    for i in range(14):
-        at = int(SR * i * 0.012)
-        tick = _key_sound(rng, "key")[: int(SR * 0.02)] * 0.6
-        out[at: at + len(tick)] += tick
-    slam = _key_sound(rng, "space") * 1.4
-    at = int(SR * 0.19)
-    out[at: at + len(slam)] += slam
+    out[:n] += zip_
+    slam = _key_sound(rng, "space") * 1.2
+    _place(out, slam, 0.22)
     return out
 
 
 def _bell():
-    n = int(SR * 1.6)
+    """Soft warm bell - low partials, longer decay, quiet."""
+    n = int(SR * 1.4)
     t = np.arange(n) / SR
-    s = (np.sin(2 * np.pi * 2350 * t) * 0.6
-         + np.sin(2 * np.pi * 4720 * t) * 0.25
-         + np.sin(2 * np.pi * 6900 * t) * 0.1) * _env(n, 0.45)
-    s[:int(SR * 0.002)] *= np.linspace(0, 1, int(SR * 0.002))
-    return s * 0.45
+    s = (np.sin(2 * np.pi * 1760 * t) * 0.6
+         + np.sin(2 * np.pi * 2655 * t) * 0.25
+         + np.sin(2 * np.pi * 3520 * t) * 0.1) * _env(n, 0.35)
+    s[:int(SR * 0.003)] *= np.linspace(0, 1, int(SR * 0.003))
+    return s * 0.14
+
+
+def _room(buf, seed):
+    """Short diffuse room tail, ~12% wet."""
+    rng = np.random.default_rng(seed)
+    n = int(SR * 0.09)
+    ir = rng.standard_normal(n) * _env(n, 0.025)
+    ir[0] = 0
+    wet = np.convolve(buf, ir, mode="full")[: len(buf)]
+    return buf + wet * (0.12 * np.abs(buf).max() / max(np.abs(wet).max(), 1e-9))
 
 
 def synth_audio(events, total_s, bell_at, seed, path):
@@ -118,14 +153,13 @@ def synth_audio(events, total_s, bell_at, seed, path):
     buf = np.zeros(int(SR * (total_s + 0.5)))
     for t, _, _, kind in events:
         snd = _return_sound(rng) if kind == "return" else _key_sound(rng, kind)
-        i = int(t * SR)
-        buf[i: i + len(snd)] += snd[: len(buf) - i]
-    bell = _bell()
-    i = int(bell_at * SR)
-    buf[i: i + len(bell)] += bell[: len(buf) - i]
+        _place(buf, snd, t)
+    _place(buf, _bell(), bell_at)
+    buf = _room(buf, seed)
+    buf = _bandpass(buf, 60, 9000)                      # tame harsh highs and rumble
     buf = buf[: int(SR * total_s)]
-    buf = np.tanh(buf * 1.1)                                   # soft clip glue
-    buf *= 0.9 / max(np.abs(buf).max(), 1e-6)
+    buf = np.tanh(buf * 0.9)
+    buf *= 0.6 / max(np.abs(buf).max(), 1e-6)           # peak ~ -3 dB
     pcm = (buf * 32767).astype(np.int16)
     with wave.open(path, "wb") as w:
         w.setnchannels(1)
