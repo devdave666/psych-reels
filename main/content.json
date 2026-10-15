@@ -887,8 +887,8 @@
     "text": "Life can only be understood backwards; but it must be lived forwards.",
     "attribution": "Soren Kierkegaard",
     "source": "Journals",
-    "used": false,
-    "date_used": ""
+    "used": true,
+    "date_used": "2026-10-15"
   },
   {
     "id": "11",
