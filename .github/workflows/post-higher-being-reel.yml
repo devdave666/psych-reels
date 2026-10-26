@@ -1,0 +1,32 @@
+name: Post Higher Being reel (manual, one-off)
+
+# Instagram-only, one-off post of videos/higher-being-same-goal.mp4. Manual trigger only; does not touch
+# main/content.json or main/state.json. Safe to delete once posted.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip3 install --break-system-packages requests
+
+      - name: Wait until GitHub Pages serves the video
+        run: |
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -I "https://devdave666.github.io/psych-reels/videos/higher-being-same-goal.mp4")
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "Video never became available" && exit 1
+
+      - name: Post reel to Instagram
+        working-directory: main
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+        run: python3 post_higher_being_reel.py
