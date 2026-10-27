@@ -34,11 +34,27 @@ MELODY = {
     10: [(0, 78, 0.5), (0.5, 81, 0.5), (1, 86, 3)],
 }
 PADFC = {1: 600, 2: 750, 3: 950, 4: 1300, 5: 1800, 6: 3600, 7: 3600, 8: 3600, 9: 3800, 10: 3200}
-PADG = {1: 0.5, 2: 0.55, 3: 0.6, 4: 0.65, 5: 0.7, 6: 0.85, 7: 0.85, 8: 0.85, 9: 0.9, 10: 0.9}
+PADG = {1: 0.85, 2: 0.85, 3: 0.6, 4: 0.65, 5: 0.7, 6: 0.85, 7: 0.85, 8: 0.85, 9: 0.9, 10: 0.9}
+
+
+TR = 0                                               # transposition in semitones, set with configure()
 
 
 def hz(m):
-    return 440.0 * 2 ** ((m - 69) / 12)
+    return 440.0 * 2 ** ((m + TR - 69) / 12)
+
+
+m1.hz = hz                                           # the shared pluck/bass instruments follow the key too
+
+
+def configure(shift=0, prog=None, melody=None):
+    """Re-key and re-voice the track. Chord names and MIDI numbers stay in D major; `shift` transposes everything."""
+    global TR, PROG, MELODY
+    TR = shift
+    if prog is not None:
+        PROG = prog
+    if melody is not None:
+        MELODY = melody
 
 
 def bar_t(b):
@@ -185,7 +201,7 @@ def arrange():
         # electric piano
         if b <= 2:
             for i in range(4):
-                add(DRY, ep(ch0[i % 3] + 12, 0.55), t0 + i * BEAT, -0.3 + 0.2 * i, 0.5)
+                add(DRY, ep(ch0[i % 3] + 12, 0.7), t0 + i * BEAT, -0.3 + 0.2 * i, 0.8)
         elif b <= 5:
             for i in range(8):
                 nm = segs[min(len(segs) - 1, i // 4)]

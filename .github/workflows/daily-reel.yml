@@ -1,0 +1,65 @@
+name: Daily Reel
+on:
+  schedule:
+    - cron: '0 22 * * *'  # Daily, 22:00 UTC (6pm EDT), after the 13:00 UTC main post
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-reel
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: pip3 install --break-system-packages requests
+
+      - name: Pick the next reel from reels/queue.json
+        id: pick
+        run: |
+          name=$(python3 reels/queue.py next) || { echo "::error::The reel queue is empty. Add a reel to reels/queue.json."; exit 1; }
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          left=$(python3 reels/queue.py left)
+          echo "Posting $name ($left in the queue including this one)"
+          if [ "$left" -le 2 ]; then echo "::warning::Only $left reel(s) left in the queue (including today's)."; fi
+
+      - name: Wait until GitHub Pages serves the video
+        env:
+          REEL_NAME: ${{ steps.pick.outputs.name }}
+        run: |
+          for i in $(seq 1 40); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -I "https://devdave666.github.io/psych-reels/videos/${REEL_NAME}.mp4")
+            echo "attempt $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo "Video never became available" && exit 1
+
+      - name: Post reel to Instagram
+        working-directory: main
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+          REEL_NAME: ${{ steps.pick.outputs.name }}
+        run: python3 post_reel.py
+
+      - name: Mark the reel as posted
+        env:
+          REEL_NAME: ${{ steps.pick.outputs.name }}
+        run: |
+          python3 reels/queue.py mark "$REEL_NAME"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reels/queue.json
+          git commit -m "Mark reel posted: $REEL_NAME"
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main && git push && break
+            echo "Push failed, retrying ($i)..."
+            sleep 5
+          done
