@@ -2,20 +2,15 @@ import os
 import time
 import requests
 
-# One-off Instagram-only post of the hand-animated "Same goal. Same start." reel (animation/ folder).
+# Generic one-off Instagram reel post: videos/<NAME>.mp4 with caption captions/<NAME>.txt (NAME comes from the workflow input).
 # Does not touch main/content.json or main/state.json.
 IG_TOKEN = os.environ['INSTAGRAM_ACCESS_TOKEN']
 IG_USER_ID = os.environ['INSTAGRAM_USER_ID']
+NAME = os.environ['REEL_NAME']
 BASE_URL = "https://devdave666.github.io/psych-reels"
-video_url = f"{BASE_URL}/videos/higher-being-same-goal.mp4"
-
-caption = (
-    "Same goal. Same start.\n\n"
-    "One waited until it felt right. One decided the \"when\" in advance: if X happens, then I do Y.\n\n"
-    "Motivation is a mood. A plan is a decision. If-then plans show a medium-to-large effect on goal "
-    "attainment (Gollwitzer & Sheeran, 2006; 94 tests).\n\n"
-    "#psychology #habits #philosophy"
-)
+video_url = f"{BASE_URL}/videos/{NAME}.mp4"
+with open(f"../captions/{NAME}.txt", encoding="utf-8") as f:
+    caption = f.read().strip()
 
 
 def ig_request(endpoint, params):

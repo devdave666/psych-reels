@@ -1,9 +1,13 @@
-name: Post Higher Being reel (manual, one-off)
+name: Post a reel (manual, one-off)
 
-# Instagram-only, one-off post of videos/higher-being-same-goal.mp4. Manual trigger only; does not touch
-# main/content.json or main/state.json. Safe to delete once posted.
+# Instagram-only one-off post of videos/<name>.mp4 using captions/<name>.txt. Manual trigger only; does not touch
+# main/content.json or main/state.json.
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Reel name (videos/<name>.mp4 and captions/<name>.txt)"
+        required: true
 
 jobs:
   post:
@@ -15,9 +19,11 @@ jobs:
         run: pip3 install --break-system-packages requests
 
       - name: Wait until GitHub Pages serves the video
+        env:
+          REEL_NAME: ${{ inputs.name }}
         run: |
           for i in $(seq 1 40); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" -I "https://devdave666.github.io/psych-reels/videos/higher-being-same-goal.mp4")
+            code=$(curl -s -o /dev/null -w "%{http_code}" -I "https://devdave666.github.io/psych-reels/videos/${REEL_NAME}.mp4")
             echo "attempt $i: HTTP $code"
             [ "$code" = "200" ] && exit 0
             sleep 15
@@ -29,4 +35,5 @@ jobs:
         env:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
-        run: python3 post_higher_being_reel.py
+          REEL_NAME: ${{ inputs.name }}
+        run: python3 post_reel.py
